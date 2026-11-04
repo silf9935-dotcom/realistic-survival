@@ -41,7 +41,7 @@ public final class SurvivorNpcSystem {
                     return InteractionResult.SUCCESS;
                 }
                 if (held.is(Items.BREAD)) {
-                    held.shrink(1);
+                    if (!serverPlayer.getAbilities().instabuild) held.shrink(1);
                     int trust = changeTrust(villager, ownerTag, SurvivalConfig.getInt("npcs.bread_trust", 10, 1, 50));
                     serverPlayer.displayClientMessage(Component.literal("Выживший благодарен за еду. Доверие: " + trust + "/100."), false);
                     return InteractionResult.SUCCESS;
@@ -61,7 +61,7 @@ public final class SurvivorNpcSystem {
                         serverPlayer.displayClientMessage(Component.literal("Для задания нужно 16 пшеницы. Сейчас у тебя: " + held.getCount() + "."), true);
                         return InteractionResult.SUCCESS;
                     }
-                    held.shrink(16);
+                    if (!serverPlayer.getAbilities().instabuild) held.shrink(16);
                     villager.removeTag(questTag);
                     villager.addTag(completedTag);
                     changeTrust(villager, ownerTag, 20);
@@ -76,7 +76,7 @@ public final class SurvivorNpcSystem {
                         serverPlayer.displayClientMessage(Component.literal("Сначала заслужите доверие выжившего: принесите ему хлеб."), true);
                         return InteractionResult.FAIL;
                     }
-                    held.shrink(SurvivalConfig.getInt("npcs.bandage_price", 8, 1, 64));
+                    if (!serverPlayer.getAbilities().instabuild) held.shrink(SurvivalConfig.getInt("npcs.bandage_price", 8, 1, 64));
                     ItemStack bandage = new ItemStack(MedicalItems.BANDAGE);
                     if (!serverPlayer.getInventory().add(bandage)) serverPlayer.drop(bandage, false);
                     serverPlayer.displayClientMessage(Component.literal("Выживший обменял " + SurvivalConfig.getInt("npcs.bandage_price", 8, 1, 64) + " изумрудов на бинт."), false);
