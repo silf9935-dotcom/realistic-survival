@@ -14,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import ru.realisticsurvival.core.config.SurvivalConfig;
 
 /**
  * First playable survival loop. Values are stored as entity scoreboard tags,
@@ -113,7 +114,8 @@ public final class SurvivalRuntime {
                 if (state.bodyTemperature >= 390 && ticks % 300 == 0) {
                     state.thirst = Math.max(0, state.thirst - 1);
                 }
-                if (biomeTemperature >= 1.5F && ticks % 600 == 0) {
+                if (SurvivalConfig.getBoolean("survival.hot_thirst", true)
+                        && biomeTemperature >= 1.5F && ticks % 600 == 0) {
                     state.thirst = Math.max(0, state.thirst - 1);
                 }
             }
@@ -141,13 +143,15 @@ public final class SurvivalRuntime {
             int hunger = player.getFoodData().getFoodLevel();
             boolean exhaustedByHunger = hunger <= 6;
 
-            if (hunger <= 6 && ticks % 600 == 0 && !player.isSleeping()) {
+            if ((hunger <= 6 || (SurvivalConfig.getBoolean("survival.cold_fatigue", true) && state.bodyTemperature <= 330))
+                    && ticks % 600 == 0 && !player.isSleeping()) {
                 state.fatigue = Math.min(100, state.fatigue + 1);
             }
 
             if (player.isSprinting()) {
                 int sprintInterval = exhaustedByHunger ? 3 : 5;
                 if (state.thirst < 30) sprintInterval = Math.max(2, sprintInterval - 1);
+                if (state.bodyTemperature <= 330) sprintInterval = Math.max(2, sprintInterval - 1);
                 if (ticks % sprintInterval == 0) state.stamina = Math.max(0, state.stamina - 1);
             } else {
                 int recoveryInterval = exhaustedByHunger ? 6 : 3;
@@ -190,14 +194,17 @@ public final class SurvivalRuntime {
 
             if (ticks % 20 == 0) {
                 state.write(player);
-                player.displayClientMessage(Component.literal(
-                    "§cГолод §f" + player.getFoodData().getFoodLevel() * 5 + "%  " +
-                    "§bЖажда §f" + state.thirst + "%  " +
-                    "§eВыносливость §f" + state.stamina + "%  " +
-                    "§6Усталость §f" + state.fatigue + "%  " +
-                    "§dРассудок §f" + state.sanity + "%  " +
-                    "§eТемпература §f" + String.format(java.util.Locale.ROOT, "%.1f", state.bodyTemperature / 10.0) + "°C"
-                ), true);
+                if (SurvivalConfig.getBoolean("hud.enabled", true)) {
+                    String hud = "§bЖажда §f" + state.thirst + "%  " +
+                            "§eВыносливость §f" + state.stamina + "%  " +
+                            "§6Усталость §f" + state.fatigue + "%";
+                    if (!SurvivalConfig.getBoolean("hud.compact", false)) {
+                        hud = "§cГолод §f" + player.getFoodData().getFoodLevel() * 5 + "%  " + hud +
+                                "  §dРассудок §f" + state.sanity + "%  " +
+                                "§eТемпература §f" + String.format(java.util.Locale.ROOT, "%.1f", state.bodyTemperature / 10.0) + "°C";
+                    }
+                    player.displayClientMessage(Component.literal(hud), true);
+                }
             }
         }
     }
