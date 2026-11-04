@@ -1,17 +1,13 @@
 package ru.realisticsurvival.player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.util.TypedActionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
@@ -41,7 +37,7 @@ public final class InjurySystem {
             ItemStack stack = player.getItemInHand(hand);
             if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)
                     || !stack.is(Items.PAPER) || read(serverPlayer) <= 0) {
-                return TypedActionResult.pass(stack);
+                return InteractionResultHolder.pass(stack);
             }
             int severity = read(serverPlayer);
             write(serverPlayer, severity - 1);
@@ -49,7 +45,7 @@ public final class InjurySystem {
             serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 80, 0, false, true, true));
             serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal(
                     severity == 1 ? "§aТы перевязал рану." : "§eРана обработана, но нужна ещё одна повязка."), true);
-            return TypedActionResult.success(stack);
+            return InteractionResultHolder.success(stack);
         });
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
