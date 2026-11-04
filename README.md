@@ -14,7 +14,7 @@ This first beta candidate consolidates the alpha survival loop and introduces a 
 - Hot and cold environments affect body temperature; heat increases thirst and severe cold increases fatigue.
 - Sleeping and quiet crouching restore selected survival values.
 - Darkness and extreme fatigue reduce sanity; safe light and rest support recovery.
-- Survival status action-bar HUD, with compact and disabled modes.
+- Survival status action-bar HUD, with compact and disabled modes; active injury severity is also displayed.
 - Hard hits can cause persistent injuries with escalating weakness/slowness penalties.
 - Paper can be used as an improvised bandage to reduce injury severity.
 - Player survival and injury state are stored on player entity tags and persist through relogs/world saves.
