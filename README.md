@@ -46,7 +46,8 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 ### NPC roadmap and known limitations
 
 - The current NPC feature is a first prototype built on vanilla villagers, not a new custom NPC entity.
-- Companions currently follow or stay; advanced combat commands, jobs, needs, schedules, dialogue trees, repeatable/story quests, factions and settlements are not implemented yet. The supply quest, trust and bandage barter loop are intentionally basic.
+- Companions now have a first defensive combat behavior: nearby vanilla hostile monsters that threaten the owner or approach the companion are selected as targets using vanilla villager navigation/attack behavior. This is a prototype, not a trained soldier system; weapon use, tactical commands and robust combat animation are not implemented.
+- Advanced jobs, needs, schedules, dialogue trees, multi-stage story quests, factions and settlements are still in development. The supply quest, trust and bandage barter loop remain intentionally basic.
 - The HUD is action-bar based, not a dedicated graphical overlay.
 - The current bandage uses a placeholder vanilla paper texture; advanced medicine, bleeding, fractures and infection are not implemented.
 - Gameplay balance, multiplayer behavior and NPC pathfinding still need hands-on testing in Minecraft 1.21.11.
