@@ -7,6 +7,7 @@ import ru.realisticsurvival.core.config.SurvivalConfig;
 import ru.realisticsurvival.player.SurvivalRuntime;
 import ru.realisticsurvival.player.InjurySystem;
 import ru.realisticsurvival.item.MedicalItems;
+import ru.realisticsurvival.npc.SurvivorNpcSystem;
 
 public final class RealisticSurvival implements ModInitializer {
     public static final String MOD_ID = "realistic_survival";
@@ -18,6 +19,7 @@ public final class RealisticSurvival implements ModInitializer {
         MedicalItems.initialize();
         SurvivalRuntime.register();
         InjurySystem.register();
-        LOGGER.info("Realistic Survival survival systems initialized.");
+        SurvivorNpcSystem.register();
+        LOGGER.info("Realistic Survival survival, injury and survivor NPC systems initialized.");
     }
 }
