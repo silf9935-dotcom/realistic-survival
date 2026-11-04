@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "realistic_survival",
+  "version": "${version}",
+  "name": "Realistic Survival",
+  "description": "A deep survival overhaul for Minecraft with realistic needs, injuries, ecology and a persistent world.",
+  "authors": ["Realistic Survival Team"],
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["ru.realisticsurvival.RealisticSurvival"]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
