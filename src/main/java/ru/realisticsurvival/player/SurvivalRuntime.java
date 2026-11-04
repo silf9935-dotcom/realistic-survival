@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -46,9 +46,9 @@ public final class SurvivalRuntime {
                 state.thirst = Math.min(100, state.thirst + 20);
                 state.write(serverPlayer);
                 serverPlayer.displayClientMessage(Component.literal("§bВы утолили жажду: +20%"), true);
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         });
     }
 
@@ -79,12 +79,12 @@ public final class SurvivalRuntime {
                 player.setSprinting(false);
             }
             if (state.thirst < 15) {
-                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 45, 0, false, false, true));
+                player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 45, 0, false, false, true));
                 player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 45, 0, false, false, true));
             }
             if (state.fatigue >= 90) {
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 45, 0, false, false, true));
-                player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 45, 0, false, false, true));
+                player.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 45, 0, false, false, true));
             }
             if (state.thirst == 0 && ticks % 1200 == 0) {
                 player.getFoodData().setFoodLevel(Math.max(0, player.getFoodData().getFoodLevel() - 1));
