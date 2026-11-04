@@ -52,7 +52,7 @@ public final class SurvivorProgressionSystem {
                 int stock = readNumber(villager, STOCK_PREFIX);
                 setSingleTag(villager, STOCK_PREFIX, STOCK_PREFIX + Math.min(64, stock + held.getCount()));
                 if (!owner.getAbilities().instabuild) held.shrink(held.getCount());
-                owner.displayClientMessage(Component.literal("Еда передана в лагерь. Запас: " + Math.min(64, stock + 1) + " единиц."), false);
+                owner.displayClientMessage(Component.literal("Еда передана в лагерь. Запас: " + Math.min(64, stock + held.getCount()) + " единиц."), false);
                 return InteractionResult.SUCCESS;
             }
             if (held.is(Items.IRON_SWORD)) return assignRole(owner, villager, held, "guard", "Охранник", "npcs.role_item_consumption");
