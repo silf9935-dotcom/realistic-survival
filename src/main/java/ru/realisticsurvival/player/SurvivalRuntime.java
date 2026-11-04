@@ -55,7 +55,13 @@ public final class SurvivalRuntime {
                 state.lastDrinkTick = now;
                 state.thirst = Math.min(100, state.thirst + 20);
                 state.write(serverPlayer);
-                serverPlayer.displayClientMessage(Component.literal("§bВы утолили жажду: +20%"), true);
+                if (SurvivalConfig.getBoolean("survival.unsafe_water", true)
+                        && serverPlayer.getRandom().nextFloat() < 0.15F) {
+                    serverPlayer.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 100, 0, false, true, true));
+                    serverPlayer.displayClientMessage(Component.literal("§eВода оказалась загрязнённой! Вас мутит."), true);
+                } else {
+                    serverPlayer.displayClientMessage(Component.literal("§bВы утолили жажду: +20%"), true);
+                }
                 return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
