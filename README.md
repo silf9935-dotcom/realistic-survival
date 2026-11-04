@@ -1,26 +1,47 @@
- # Realistic Survival
+# Realistic Survival
 
-Fabric mod for Minecraft Java 1.21.11 focused on deep survival simulation, world persistence, believable NPCs, exploration and psychological horror.
+Fabric mod for Minecraft Java 1.21.11. The alpha focuses on a server-authoritative survival simulation with persistent player vitals.
 
 ## Development target
-- Minecraft 1.21.11
+- Minecraft Java 1.21.11
 - Java 21
 - Fabric Loader 0.18.x
 - Fabric API 0.141.x
 - Fabric Loom 1.14.x
 
-## Alpha.15
+## Current alpha: 0.2.0-alpha.16
 
-The survival loop includes persistent thirst, stamina, fatigue, sanity and body temperature. Temperature responds to environmental exposure and sprinting. Heat stress increases thirst, while temperature extremes and dehydration reduce physical endurance. Crouching while nearly motionless allows the player to rest, gradually reducing fatigue and restoring stamina and sanity. Darkness wears down sanity while well-lit areas support recovery. Hot biomes increase thirst, and critically low stamina slows movement. These systems are server-authoritative and shown in the action bar.
+Implemented in the current prototype:
+- Persistent thirst, stamina, fatigue, sanity and body temperature.
+- Drinking from water blocks while crouching with an empty hand.
+- Sprinting, hunger, dehydration, temperature and fatigue affect stamina and movement.
+- Heat and cold exposure affect body temperature; heat increases thirst and severe cold increases fatigue.
+- Sleeping and quiet crouching rest restore survival values.
+- Darkness and severe fatigue wear down sanity; safe light and rest support recovery.
+- Action-bar status HUD with configurable compact and disabled modes.
+- Server-side state persistence through player entity tags.
 
-## Current prototype
-This is an early development foundation. It loads a configuration file with the agreed fire-system defaults and contains a first server-side survival-vitals model. It is **not** yet a feature-complete gameplay mod. The HUD, medical interface, inventory extensions and gameplay simulation are planned implementation milestones.
+## Configuration
+
+The file `config/realistic-survival.properties` is created on first launch. Restart the world/server after changing settings.
+
+- `hud.enabled=true` — show or hide the survival HUD.
+- `hud.compact=false` — show only thirst, stamina and fatigue when enabled.
+- `survival.cold_fatigue=true` — let severe cold increase fatigue.
+- `survival.hot_thirst=true` — enable additional thirst loss in hot biomes.
+
+The `world.fire.*` values are currently reserved defaults; a configurable fire simulation is not implemented yet.
+
+## Alpha completion scope
+
+The project is still an early alpha, not a finished overhaul. Remaining major work includes a proper graphical HUD, configurable medical/injury gameplay, usable inventory/medical items, broader world simulation, multiplayer testing and balance. A successful compile verifies the build, not in-game behavior; release readiness requires a real Minecraft test pass.
 
 ## Build
-Use Java 21 and Gradle 8.14.3 or compatible:
+
+Use Java 21 and the Gradle version configured by the CI workflow:
 
 ```bash
 gradle build
 ```
 
-The remapped mod JAR will be placed in `build/libs/`.
+The remapped mod JAR is placed in `build/libs/`.
