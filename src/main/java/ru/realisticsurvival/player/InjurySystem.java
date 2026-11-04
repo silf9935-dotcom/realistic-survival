@@ -37,7 +37,7 @@ public final class InjurySystem {
                 int severity = Math.min(3, read(player) + (damageTaken >= severeThreshold ? 2 : 1));
                 write(player, severity);
                 player.displayClientMessage(net.minecraft.network.chat.Component.literal(
-                        "§cПолучена травма! Тяжесть: " + severity + "/3. Используй бумагу как импровизированную повязку."), true);
+                        "§cПолучена травма! Тяжесть: " + severity + "/3. Используй бинт или бумагу для перевязки."), true);
             }
         });
 
