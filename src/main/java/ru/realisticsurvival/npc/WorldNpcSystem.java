@@ -14,7 +14,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.monster.PatrollingMonster;
 import net.minecraft.world.entity.monster.illager.Pillager;
 import net.minecraft.world.entity.monster.illager.Vindicator;
 import net.minecraft.world.entity.npc.villager.Villager;
@@ -125,8 +124,8 @@ public final class WorldNpcSystem {
         for (int attempt = 0; attempt < 12; attempt++) {
             int x = center.getX() + random.nextInt(17) - 8;
             int z = center.getZ() + random.nextInt(17) - 8;
-            int startY = Math.min(center.getY() + 8, level.getMaxBuildHeight() - 2);
-            int minY = Math.max(center.getY() - 8, level.getMinBuildHeight() + 1);
+            int startY = center.getY() + 8;
+            int minY = center.getY() - 8;
             for (int y = startY; y >= minY; y--) {
                 BlockPos pos = new BlockPos(x, y, z);
                 if (level.getBlockState(pos).isAir() && level.getBlockState(pos.above()).isAir()
