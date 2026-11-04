@@ -16,7 +16,7 @@ This first beta candidate consolidates the alpha survival loop and introduces a 
 - Darkness and extreme fatigue reduce sanity; safe light and rest support recovery.
 - Survival status action-bar HUD, with compact and disabled modes; active injury severity is also displayed.
 - Hard hits can cause persistent injuries with escalating weakness/slowness penalties.
-- Paper can be used as an improvised bandage to reduce injury severity.
+- Craftable bandages (paper + string) reduce injury severity; paper remains supported as an improvised fallback.
 - Player survival and injury state are stored on player entity tags and persist through relogs/world saves.
 
 ### Configuration
@@ -32,14 +32,14 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 - `injuries.enabled=true` — enable injury penalties and paper bandages.
 - `injuries.damage_threshold=4.0` — minimum damage from one hit required to cause an injury.
 - `injuries.severe_hit_threshold=8.0` — damage from one hit required to add two injury severity levels instead of one. Both thresholds are clamped to safe ranges; the severe threshold cannot be lower than the normal threshold.
-- `injuries.treatment_cooldown_seconds=10` — delay between paper bandage uses (0–300 seconds), preventing instant repeated treatment.
+- `injuries.treatment_cooldown_seconds=10` — delay between bandage uses (0–300 seconds), preventing instant repeated treatment.
 
 The existing `world.fire.*` values are reserved configuration defaults; a full fire simulation is not implemented.
 
 ### Known limitations before a full release
 
 - The HUD is action-bar based, not a dedicated graphical overlay.
-- Paper is a temporary improvised treatment, not a dedicated craftable medical item.
+- The current bandage is a basic one-step treatment; advanced medicine, bleeding, fractures and infection are not implemented.
 - No complete fracture, bleeding, infection, disease or medical-inventory simulation yet.
 - No NPC ecology or broad world-event simulation yet.
 - Gameplay balance and multiplayer behavior still need hands-on testing in Minecraft 1.21.11.
