@@ -51,6 +51,7 @@ public final class SurvivalConfig {
         VALUES.setProperty("npcs.bread_trust", "10");
         VALUES.setProperty("npcs.trade_min_trust", "20");
         VALUES.setProperty("npcs.bandage_price", "8");
+        VALUES.setProperty("npcs.role_item_consumption", "false");
         VALUES.setProperty("world.fire.spread", "realistic");
         VALUES.setProperty("world.fire.forest", "full");
         VALUES.setProperty("world.fire.structures", "full");
