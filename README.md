@@ -19,9 +19,9 @@ A Fabric survival-simulation mod for Minecraft Java 1.21.11.
 
 The NPC scope is intentionally limited to exactly three groups:
 
-- **Bandits:** vanilla pillagers, identified and named as bandits.
-- **Military:** vanilla vindicators, identified and named as military personnel.
-- **Story characters:** individually marked villagers with persistent dialogue progress. They are not recruitable companions.
+- **Bandits:** pillagers are named and tagged as bandits, receive light leather protection and retain their crossbow ranged combat.
+- **Military:** vindicators are named and tagged as military personnel, equipped with iron weapons and full iron armor for close combat.
+- **Story characters:** individually marked villagers are persistent, non-recruitable quest givers with saved dialogue and quest state.
 
 Story characters can be created with a vanilla summon command, for example:
 
@@ -29,7 +29,7 @@ Story characters can be created with a vanilla summon command, for example:
 /summon minecraft:villager ~ ~ ~ {Tags:["rs_story_npc"],CustomName:'{"text":"Старый связной"}',CustomNameVisible:1b}
 ```
 
-Interact with a marked story character to advance through their introductory dialogue. Dialogue progress is saved on that character.
+Interact with a marked story character to begin a quest. At the first choice, give the character **paper** to take the intelligence route (receive a compass), or an **emerald** to take the supply route (receive bread). Both routes lead to a second task: deliver 5 iron ingots. Completing it rewards a golden apple and 3 emeralds. Dialogue, route choice and quest stage are saved on the character.
 
 Recruitable survivors, survivor jobs, trust/trading, camp supplies, companion combat and survivor quest chains are no longer registered or part of the NPC design.
 
