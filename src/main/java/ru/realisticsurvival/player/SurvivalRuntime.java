@@ -79,10 +79,19 @@ public final class SurvivalRuntime {
                 }
             }
 
+            int hunger = player.getFoodData().getFoodLevel();
+            boolean exhaustedByHunger = hunger <= 6;
+
+            if (hunger <= 6 && ticks % 600 == 0 && !player.isSleeping()) {
+                state.fatigue = Math.min(100, state.fatigue + 1);
+            }
+
             if (player.isSprinting()) {
-                if (ticks % 5 == 0) state.stamina = Math.max(0, state.stamina - 1);
-            } else if (ticks % 3 == 0) {
-                state.stamina = Math.min(100, state.stamina + 1);
+                int sprintInterval = exhaustedByHunger ? 3 : 5;
+                if (ticks % sprintInterval == 0) state.stamina = Math.max(0, state.stamina - 1);
+            } else {
+                int recoveryInterval = exhaustedByHunger ? 6 : 3;
+                if (ticks % recoveryInterval == 0) state.stamina = Math.min(100, state.stamina + 1);
             }
 
             if (state.fatigue >= 70 && ticks % 1800 == 0) {
