@@ -19,6 +19,8 @@ public final class SurvivorProgressionSystem {
     private static final String ROLE_PREFIX = "rs_survivor_role_";
     private static final String FACTION_PREFIX = "rs_survivor_faction_";
     private static final String QUEST_PREFIX = "rs_survivor_chain_";
+    private static final String CAMP_PREFIX = "rs_survivor_camp_";
+    private static final String STOCK_PREFIX = "rs_survivor_stock_";
 
     private SurvivorProgressionSystem() {}
 
@@ -32,6 +34,27 @@ public final class SurvivorProgressionSystem {
             if (!villager.getTags().contains(ownerTag)) return InteractionResult.PASS;
 
             ItemStack held = owner.getItemInHand(hand);
+            if (held.is(Items.CAMPFIRE) || held.is(Items.SOUL_CAMPFIRE)) {
+                String camp = CAMP_PREFIX + villager.blockPosition().getX() + "_" + villager.blockPosition().getY() + "_" + villager.blockPosition().getZ();
+                setSingleTag(villager, CAMP_PREFIX, camp);
+                if (!owner.getAbilities().instabuild) held.shrink(1);
+                owner.displayClientMessage(Component.literal("Лагерь отмечен у спутника. Он запомнит эту точку после перезагрузки мира."), false);
+                return InteractionResult.SUCCESS;
+            }
+            if (held.is(Items.CHEST) || held.is(Items.BARREL)) {
+                int stock = readNumber(villager, STOCK_PREFIX);
+                setSingleTag(villager, STOCK_PREFIX, STOCK_PREFIX + Math.min(64, stock + 8));
+                if (!owner.getAbilities().instabuild) held.shrink(1);
+                owner.displayClientMessage(Component.literal("Запасы лагеря увеличены. Условный резерв: " + Math.min(64, stock + 8) + " единиц."), false);
+                return InteractionResult.SUCCESS;
+            }
+            if (held.is(Items.BREAD) && villager.getTags().stream().anyMatch(tag -> tag.startsWith(CAMP_PREFIX))) {
+                int stock = readNumber(villager, STOCK_PREFIX);
+                setSingleTag(villager, STOCK_PREFIX, STOCK_PREFIX + Math.min(64, stock + held.getCount()));
+                if (!owner.getAbilities().instabuild) held.shrink(held.getCount());
+                owner.displayClientMessage(Component.literal("Еда передана в лагерь. Запас: " + Math.min(64, stock + 1) + " единиц."), false);
+                return InteractionResult.SUCCESS;
+            }
             if (held.is(Items.IRON_SWORD)) return assignRole(owner, villager, held, "guard", "Охранник", "npcs.role_item_consumption");
             if (held.is(Items.IRON_PICKAXE)) return assignRole(owner, villager, held, "scavenger", "Собиратель", "npcs.role_item_consumption");
             if (held.is(Items.SHEARS)) return assignRole(owner, villager, held, "medic", "Медик", "npcs.role_item_consumption");
@@ -51,10 +74,12 @@ public final class SurvivorProgressionSystem {
                 String role = readValue(villager, ROLE_PREFIX, "без профессии");
                 String faction = readValue(villager, FACTION_PREFIX, "без фракции");
                 int stage = readQuest(villager, ownerTag);
+                String camp = villager.getTags().stream().filter(tag -> tag.startsWith(CAMP_PREFIX)).findFirst().map(tag -> tag.substring(CAMP_PREFIX.length())).orElse("не разбит");
+                int stock = readNumber(villager, STOCK_PREFIX);
                 String schedule = owner.level().getDayTime() % 24000L < 12000L ? "дневная смена" : "ночной отдых";
                 owner.displayClientMessage(Component.literal("Выживший [" + role + ", " + faction + "] Доверие: "
                         + readTrust(villager, ownerTag) + "/100. Сейчас: " + schedule
-                        + ". Цепочка снабжения: " + Math.min(stage + 1, 3) + "/3."), false);
+                        + ". Цепочка снабжения: " + Math.min(stage + 1, 3) + "/3. Лагерь: " + camp + ", запас: " + stock + "."), false);
                 return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
@@ -135,7 +160,7 @@ public final class SurvivorProgressionSystem {
         return 0;
     }
 
-    private static String readValue(Villager villager, String prefix, String fallback) {
+    private static int readNumber(Villager villager, String prefix) {\n        for (String tag : villager.getTags()) {\n            if (tag.startsWith(prefix)) {\n                try { return Math.max(0, Math.min(64, Integer.parseInt(tag.substring(prefix.length())))); }\n                catch (NumberFormatException ignored) { return 0; }\n            }\n        }\n        return 0;\n    }\n\n    private static String readValue(Villager villager, String prefix, String fallback) {
         return villager.getTags().stream().filter(tag -> tag.startsWith(prefix))
                 .map(tag -> tag.substring(prefix.length())).findFirst().orElse(fallback);
     }
