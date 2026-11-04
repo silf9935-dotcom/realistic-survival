@@ -51,6 +51,7 @@ public final class InjurySystem {
         });
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (!SurvivalConfig.getBoolean("injuries.enabled", true)) return;
             ticks++;
             if (ticks % 40 != 0) return;
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
