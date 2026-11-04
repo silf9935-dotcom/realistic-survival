@@ -5,6 +5,7 @@
 - Add improvised wound treatment: use paper while injured to reduce wound severity; treatment is configurable and creative players do not consume paper.
 - Add `injuries.enabled` to the generated configuration.
 - Add configurable untreated-water contamination: drinking directly from natural water has a 15% chance to cause brief nausea (`survival.unsafe_water`).
+- Display current injury severity in the survival action-bar HUD while a wound is active.
 - Retain thirst, stamina, fatigue, sanity, body temperature, environmental exposure, quiet rest, sleep recovery and configurable action-bar HUD.
 - This is a beta candidate, not a claim that the planned full overhaul is complete; proper graphical HUD, dedicated medical items/recipes, broader world simulation and in-game multiplayer/balance testing remain future work.
 
