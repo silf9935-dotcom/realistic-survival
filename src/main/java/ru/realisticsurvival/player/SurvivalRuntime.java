@@ -204,6 +204,8 @@ public final class SurvivalRuntime {
                     String hud = "§bЖажда §f" + state.thirst + "%  " +
                             "§eВыносливость §f" + state.stamina + "%  " +
                             "§6Усталость §f" + state.fatigue + "%";
+                    int injurySeverity = InjurySystem.getSeverity(player);
+                    if (injurySeverity > 0) hud += "  §cРана §f" + injurySeverity + "/3";
                     if (!SurvivalConfig.getBoolean("hud.compact", false)) {
                         hud = "§cГолод §f" + player.getFoodData().getFoodLevel() * 5 + "%  " + hud +
                                 "  §dРассудок §f" + state.sanity + "%  " +
