@@ -20,6 +20,7 @@ public final class RealisticSurvival implements ModInitializer {
         SurvivalRuntime.register();
         InjurySystem.register();
         SurvivorNpcSystem.register();
+        SurvivorCombatSystem.register();
         LOGGER.info("Realistic Survival survival, injury and survivor NPC systems initialized.");
     }
 }
