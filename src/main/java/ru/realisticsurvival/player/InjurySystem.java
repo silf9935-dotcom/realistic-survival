@@ -17,7 +17,6 @@ import net.minecraft.world.effect.MobEffects;
  */
 public final class InjurySystem {
     private static final String TAG = "rs_injury_";
-    private static final Map<UUID, Integer> WOUNDS = new HashMap<>();
     private static long ticks;
 
     private InjurySystem() {}
