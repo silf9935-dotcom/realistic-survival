@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.realisticsurvival.core.config.SurvivalConfig;
+import ru.realisticsurvival.player.SurvivalRuntime;
 
 public final class RealisticSurvival implements ModInitializer {
     public static final String MOD_ID = "realistic_survival";
@@ -12,6 +13,7 @@ public final class RealisticSurvival implements ModInitializer {
     @Override
     public void onInitialize() {
         SurvivalConfig.load();
-        LOGGER.info("Realistic Survival foundation loaded. Gameplay systems are being added in stages.");
+        SurvivalRuntime.register();
+        LOGGER.info("Realistic Survival survival systems initialized.");
     }
 }
