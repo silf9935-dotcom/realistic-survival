@@ -8,6 +8,7 @@ import ru.realisticsurvival.player.SurvivalRuntime;
 import ru.realisticsurvival.player.InjurySystem;
 import ru.realisticsurvival.item.MedicalItems;
 import ru.realisticsurvival.npc.SurvivorNpcSystem;
+import ru.realisticsurvival.npc.SurvivorCombatSystem;
 
 public final class RealisticSurvival implements ModInitializer {
     public static final String MOD_ID = "realistic_survival";
