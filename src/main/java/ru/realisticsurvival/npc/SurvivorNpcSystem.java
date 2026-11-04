@@ -42,17 +42,17 @@ public final class SurvivorNpcSystem {
                 }
                 if (held.is(Items.BREAD)) {
                     held.shrink(1);
-                    int trust = changeTrust(villager, ownerTag, 10);
+                    int trust = changeTrust(villager, ownerTag, SurvivalConfig.getInt("npcs.bread_trust", 10, 1, 50));
                     serverPlayer.displayClientMessage(Component.literal("Выживший благодарен за еду. Доверие: " + trust + "/100."), false);
                     return InteractionResult.SUCCESS;
                 }
-                if (held.is(Items.EMERALD) && held.getCount() >= 8) {
+                if (held.is(Items.EMERALD) && held.getCount() >= SurvivalConfig.getInt("npcs.bandage_price", 8, 1, 64)) {
                     int trust = readTrust(villager, ownerTag);
-                    if (trust < 20) {
+                    if (trust < SurvivalConfig.getInt("npcs.trade_min_trust", 20, 0, 100)) {
                         serverPlayer.displayClientMessage(Component.literal("Сначала заслужите доверие выжившего: принесите ему хлеб."), true);
                         return InteractionResult.FAIL;
                     }
-                    held.shrink(8);
+                    held.shrink(SurvivalConfig.getInt("npcs.bandage_price", 8, 1, 64));
                     ItemStack bandage = new ItemStack(MedicalItems.BANDAGE);
                     if (!serverPlayer.getInventory().add(bandage)) serverPlayer.drop(bandage, false);
                     serverPlayer.displayClientMessage(Component.literal("Выживший обменял 8 изумрудов на бинт."), false);
@@ -72,10 +72,10 @@ public final class SurvivorNpcSystem {
             }
             if (!serverPlayer.getAbilities().instabuild) held.shrink(5);
             villager.addTag(ownerTag);
-            villager.addTag(TRUST_PREFIX + serverPlayer.getUUID() + "_10");
+            villager.addTag(TRUST_PREFIX + serverPlayer.getUUID() + "_" + SurvivalConfig.getInt("npcs.starting_trust", 10, 0, 100));
             villager.setCustomName(Component.literal("Выживший"));
             villager.setCustomNameVisible(true);
-            serverPlayer.displayClientMessage(Component.literal("Выживший присоединился к вашей группе! Доверие: 10/100."), false);
+            serverPlayer.displayClientMessage(Component.literal("Выживший присоединился к вашей группе! Доверие: " + SurvivalConfig.getInt("npcs.starting_trust", 10, 0, 100) + "/100."), false);
             return InteractionResult.SUCCESS;
         });
 
