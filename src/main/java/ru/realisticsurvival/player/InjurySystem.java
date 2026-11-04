@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import ru.realisticsurvival.core.config.SurvivalConfig;
 
 /**
  * Lightweight injury layer for the beta: hard hits create persistent wounds;
@@ -23,6 +24,7 @@ public final class InjurySystem {
 
     public static void register() {
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
+            if (!SurvivalConfig.getBoolean("injuries.enabled", true)) return;
             if (!(entity instanceof ServerPlayer player) || player.isCreative() || player.isSpectator()) return;
             if (damageTaken >= 4.0F) {
                 int severity = Math.min(3, read(player) + (damageTaken >= 8.0F ? 2 : 1));
@@ -34,13 +36,14 @@ public final class InjurySystem {
 
         UseItemCallback.EVENT.register((player, world, hand) -> {
             ItemStack stack = player.getItemInHand(hand);
-            if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)
+            if (world.isClientSide() || !SurvivalConfig.getBoolean("injuries.enabled", true)
+                    || !(player instanceof ServerPlayer serverPlayer)
                     || !stack.is(Items.PAPER) || read(serverPlayer) <= 0) {
                 return InteractionResult.PASS;
             }
             int severity = read(serverPlayer);
             write(serverPlayer, severity - 1);
-            stack.shrink(1);
+            if (!serverPlayer.getAbilities().instabuild) stack.shrink(1);
             serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 80, 0, false, true, true));
             serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal(
                     severity == 1 ? "§aТы перевязал рану." : "§eРана обработана, но нужна ещё одна повязка."), true);
