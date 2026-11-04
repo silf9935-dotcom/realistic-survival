@@ -30,6 +30,8 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 - `survival.unsafe_water=true` — untreated natural water can cause brief nausea.
 - `survival.unsafe_water_chance=15` — contamination chance from 0 to 100 percent.
 - `injuries.enabled=true` — enable injury penalties and paper bandages.
+- `injuries.damage_threshold=4.0` — minimum damage from one hit required to cause an injury.
+- `injuries.severe_hit_threshold=8.0` — damage from one hit required to add two injury severity levels instead of one. Both thresholds are clamped to safe ranges; the severe threshold cannot be lower than the normal threshold.
 
 The existing `world.fire.*` values are reserved configuration defaults; a full fire simulation is not implemented.
 
