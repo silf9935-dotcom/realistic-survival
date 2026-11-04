@@ -1,3 +1,12 @@
+## 0.3.0-beta.1
+
+- Consolidate the alpha survival loop into the first beta candidate for Minecraft Java 1.21.11 / Fabric.
+- Add persistent injury severity after hard hits, with escalating weakness and slowness penalties.
+- Add improvised wound treatment: use paper while injured to reduce wound severity; treatment is configurable and creative players do not consume paper.
+- Add `injuries.enabled` to the generated configuration.
+- Retain thirst, stamina, fatigue, sanity, body temperature, environmental exposure, quiet rest, sleep recovery and configurable action-bar HUD.
+- This is a beta candidate, not a claim that the planned full overhaul is complete; proper graphical HUD, dedicated medical items/recipes, broader world simulation and in-game multiplayer/balance testing remain future work.
+
 ## 0.2.0-alpha.16
 
 - Cold exposure now increases fatigue and makes sprinting consume stamina faster when body temperature becomes critically low.
