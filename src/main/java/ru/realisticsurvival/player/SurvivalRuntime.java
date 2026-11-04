@@ -79,6 +79,36 @@ public final class SurvivalRuntime {
                 }
             }
 
+            // Core temperature is stored in tenths of a degree Celsius (370 = 37.0 C).
+            if (ticks % 100 == 0) {
+                float biomeTemperature = player.level().getBiome(player.blockPosition()).value().getBaseTemperature();
+                if (player.isOnFire()) {
+                    state.bodyTemperature = Math.min(430, state.bodyTemperature + 2);
+                } else if (player.isInWater()) {
+                    state.bodyTemperature = Math.max(250, state.bodyTemperature - 2);
+                } else if (biomeTemperature >= 1.5F) {
+                    state.bodyTemperature = Math.min(430, state.bodyTemperature + 1);
+                } else if (biomeTemperature <= 0.2F && player.level().isRainingAt(player.blockPosition())) {
+                    state.bodyTemperature = Math.max(250, state.bodyTemperature - 1);
+                } else if (ticks % 200 == 0) {
+                    if (state.bodyTemperature < 370) state.bodyTemperature++;
+                    else if (state.bodyTemperature > 370) state.bodyTemperature--;
+                }
+            }
+            if (state.bodyTemperature <= 350) {
+                player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 45, 0, false, false, true));
+            }
+            if (state.bodyTemperature <= 330) {
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 45, 0, false, false, true));
+                player.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 45, 0, false, false, true));
+            }
+            if (state.bodyTemperature >= 390) {
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 45, 0, false, false, true));
+            }
+            if (state.bodyTemperature >= 410) {
+                player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 45, 0, false, false, true));
+            }
+
             int hunger = player.getFoodData().getFoodLevel();
             boolean exhaustedByHunger = hunger <= 6;
 
@@ -126,7 +156,8 @@ public final class SurvivalRuntime {
                     "§bЖажда §f" + state.thirst + "%  " +
                     "§eВыносливость §f" + state.stamina + "%  " +
                     "§6Усталость §f" + state.fatigue + "%  " +
-                    "§dРассудок §f" + state.sanity + "%"
+                    "§dРассудок §f" + state.sanity + "%  " +
+                    "§eТемпература §f" + String.format(java.util.Locale.ROOT, "%.1f", state.bodyTemperature / 10.0) + "°C"
                 ), true);
             }
         }
@@ -137,6 +168,7 @@ public final class SurvivalRuntime {
         int fatigue = 0;
         int stamina = 100;
         int sanity = 100;
+        int bodyTemperature = 370;
         long lastDrinkTick = -1000L;
 
         static State read(ServerPlayer player) {
@@ -145,6 +177,7 @@ public final class SurvivalRuntime {
             state.fatigue = readValue(player, "fatigue", 0);
             state.stamina = readValue(player, "stamina", 100);
             state.sanity = readValue(player, "sanity", 100);
+            state.bodyTemperature = readTemperature(player);
             return state;
         }
 
@@ -153,6 +186,24 @@ public final class SurvivalRuntime {
             writeValue(player, "fatigue", fatigue);
             writeValue(player, "stamina", stamina);
             writeValue(player, "sanity", sanity);
+            writeTemperature(player, bodyTemperature);
+        }
+
+        private static int readTemperature(ServerPlayer player) {
+            String prefix = TAG_PREFIX + "temperature_";
+            for (String tag : player.getTags()) {
+                if (tag.startsWith(prefix)) {
+                    try { return Math.max(250, Math.min(430, Integer.parseInt(tag.substring(prefix.length())))); }
+                    catch (NumberFormatException ignored) { return 370; }
+                }
+            }
+            return 370;
+        }
+
+        private static void writeTemperature(ServerPlayer player, int value) {
+            String prefix = TAG_PREFIX + "temperature_";
+            player.getTags().stream().filter(tag -> tag.startsWith(prefix)).toList().forEach(player::removeTag);
+            player.addTag(prefix + Math.max(250, Math.min(430, value)));
         }
 
         private static int readValue(ServerPlayer player, String key, int fallback) {
