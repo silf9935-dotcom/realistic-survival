@@ -40,6 +40,7 @@ public final class SurvivalConfig {
         VALUES.setProperty("survival.cold_fatigue", "true");
         VALUES.setProperty("survival.hot_thirst", "true");
         VALUES.setProperty("survival.unsafe_water", "true");
+        VALUES.setProperty("survival.unsafe_water_chance", "15");
         VALUES.setProperty("injuries.enabled", "true");
         VALUES.setProperty("world.fire.spread", "realistic");
         VALUES.setProperty("world.fire.forest", "full");
