@@ -14,10 +14,11 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import ru.realisticsurvival.core.config.SurvivalConfig;
+import ru.realisticsurvival.item.MedicalItems;
 
 /**
  * Lightweight injury layer for the beta: hard hits create persistent wounds;
- * an ordinary paper item can be used as an improvised bandage.
+ * craftable bandages and paper can be used to treat wounds.
  */
 public final class InjurySystem {
     private static final String TAG = "rs_injury_";
@@ -44,7 +45,7 @@ public final class InjurySystem {
             ItemStack stack = player.getItemInHand(hand);
             if (world.isClientSide() || !SurvivalConfig.getBoolean("injuries.enabled", true)
                     || !(player instanceof ServerPlayer serverPlayer)
-                    || !stack.is(Items.PAPER) || read(serverPlayer) <= 0) {
+                    || !(stack.is(MedicalItems.BANDAGE) || stack.is(Items.PAPER)) || read(serverPlayer) <= 0) {
                 return InteractionResult.PASS;
             }
             long readyAt = NEXT_TREATMENT_TICK.getOrDefault(serverPlayer.getUUID(), 0L);
