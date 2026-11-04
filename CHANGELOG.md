@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0-alpha.4
+
+- Low hunger now increases fatigue over time.
+- Low hunger makes sprinting consume stamina faster and slows stamina recovery.
+- Sprinting, thirst, sleep recovery, and fatigue penalties remain server-side.
+
 ## 0.2.0-alpha.3
 
 - Fix the Minecraft 1.21.11 Mojang-mapped slowness effect field used by the fatigue penalty.
