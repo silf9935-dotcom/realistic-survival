@@ -109,6 +109,12 @@ public final class SurvivalRuntime {
                 player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 45, 0, false, false, true));
                 player.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 45, 0, false, false, true));
             }
+            if (state.sanity <= 15 && ticks % 200 == 0) {
+                player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 100, 0, false, false, true));
+            }
+            if (state.sanity <= 5 && ticks % 400 == 0) {
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 120, 0, false, false, true));
+            }
             if (state.thirst == 0 && ticks % 1200 == 0) {
                 player.getFoodData().setFoodLevel(Math.max(0, player.getFoodData().getFoodLevel() - 1));
             }
