@@ -67,6 +67,18 @@ public final class SurvivalRuntime {
             State state = STATES.computeIfAbsent(player.getUUID(), ignored -> State.read(player));
 
             if (ticks % 600 == 0) state.thirst = Math.max(0, state.thirst - 1);
+
+            // Quiet rest: crouching while nearly motionless gradually reduces fatigue.
+            if (!player.isSleeping() && player.isShiftKeyDown()
+                    && player.getDeltaMovement().horizontalDistanceSqr() < 0.0025) {
+                state.restTicks++;
+                if (state.restTicks % 200 == 0) {
+                    state.fatigue = Math.max(0, state.fatigue - 1);
+                    state.stamina = Math.min(100, state.stamina + 2);
+                }
+            } else {
+                state.restTicks = 0;
+            }
             if (player.isSleeping()) {
                 if (ticks % 120 == 0) state.fatigue = Math.max(0, state.fatigue - 1);
                 if (ticks % 40 == 0) state.stamina = Math.min(100, state.stamina + 2);
@@ -124,9 +136,11 @@ public final class SurvivalRuntime {
 
             if (player.isSprinting()) {
                 int sprintInterval = exhaustedByHunger ? 3 : 5;
+                if (state.thirst < 30) sprintInterval = Math.max(2, sprintInterval - 1);
                 if (ticks % sprintInterval == 0) state.stamina = Math.max(0, state.stamina - 1);
             } else {
                 int recoveryInterval = exhaustedByHunger ? 6 : 3;
+                if (state.thirst < 30) recoveryInterval *= 2;
                 if (state.bodyTemperature <= 340) recoveryInterval *= 2;
                 if (state.bodyTemperature >= 400) recoveryInterval *= 2;
                 if (ticks % recoveryInterval == 0) state.stamina = Math.min(100, state.stamina + 1);
@@ -178,6 +192,7 @@ public final class SurvivalRuntime {
         int sanity = 100;
         int bodyTemperature = 370;
         long lastDrinkTick = -1000L;
+        int restTicks = 0;
 
         static State read(ServerPlayer player) {
             State state = new State();
