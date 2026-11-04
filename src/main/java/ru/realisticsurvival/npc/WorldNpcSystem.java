@@ -23,6 +23,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.util.RandomSource;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Three focused NPC groups: hostile bandits, armed military and marked story characters.
@@ -71,16 +73,16 @@ public final class WorldNpcSystem {
         ServerTickEvents.END_WORLD_TICK.register(level -> {
             if (level.getGameTime() % SPAWN_INTERVAL_TICKS != 0L
                     || level.getDifficulty() == Difficulty.PEACEFUL) return;
-            for (ArmorStand marker : level.getEntitiesOfClass(ArmorStand.class,
-                    new AABB(level.getWorldBorder().getMinX(), level.getMinBuildHeight(),
-                            level.getWorldBorder().getMinZ(), level.getWorldBorder().getMaxX(),
-                            level.getMaxBuildHeight(), level.getWorldBorder().getMaxZ()),
-                    stand -> stand.getTags().contains(BANDIT_SPAWN_TAG)
-                            || stand.getTags().contains(MILITARY_SPAWN_TAG))) {
-                if (level.players().stream().noneMatch(player ->
-                        player.distanceToSqr(marker) <= 96.0 * 96.0)) continue;
-                boolean bandits = marker.getTags().contains(BANDIT_SPAWN_TAG);
-                spawnMarkerGroup(level, marker, bandits);
+            Set<java.util.UUID> processedMarkers = new HashSet<>();
+            for (ServerPlayer player : level.players()) {
+                for (ArmorStand marker : level.getEntitiesOfClass(ArmorStand.class,
+                        new AABB(player.blockPosition()).inflate(96.0),
+                        stand -> stand.getTags().contains(BANDIT_SPAWN_TAG)
+                                || stand.getTags().contains(MILITARY_SPAWN_TAG))) {
+                    if (!processedMarkers.add(marker.getUUID())) continue;
+                    boolean bandits = marker.getTags().contains(BANDIT_SPAWN_TAG);
+                    spawnMarkerGroup(level, marker, bandits);
+                }
             }
         });
 
