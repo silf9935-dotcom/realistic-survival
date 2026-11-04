@@ -40,9 +40,18 @@ public final class SurvivalRuntime {
         ServerTickEvents.END_SERVER_TICK.register(SurvivalRuntime::tick);
         UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
             if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer
+                    && !serverPlayer.isSpectator()
                     && serverPlayer.isShiftKeyDown()
+                    && serverPlayer.getItemInHand(hand).isEmpty()
                     && world.getBlockState(hit.getBlockPos()).getFluidState().is(FluidTags.WATER)) {
                 State state = STATES.computeIfAbsent(serverPlayer.getUUID(), ignored -> State.read(serverPlayer));
+                long now = world.getGameTime();
+                if (now - state.lastDrinkTick < 40) return InteractionResult.PASS;
+                if (state.thirst >= 100) {
+                    serverPlayer.displayClientMessage(Component.literal("§bЖажда уже утолена."), true);
+                    return InteractionResult.PASS;
+                }
+                state.lastDrinkTick = now;
                 state.thirst = Math.min(100, state.thirst + 20);
                 state.write(serverPlayer);
                 serverPlayer.displayClientMessage(Component.literal("§bВы утолили жажду: +20%"), true);
@@ -108,6 +117,7 @@ public final class SurvivalRuntime {
         int fatigue = 0;
         int stamina = 100;
         int sanity = 100;
+        long lastDrinkTick = -1000L;
 
         static State read(ServerPlayer player) {
             State state = new State();
