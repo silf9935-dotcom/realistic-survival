@@ -55,7 +55,7 @@ public final class SurvivorNpcSystem {
                     held.shrink(SurvivalConfig.getInt("npcs.bandage_price", 8, 1, 64));
                     ItemStack bandage = new ItemStack(MedicalItems.BANDAGE);
                     if (!serverPlayer.getInventory().add(bandage)) serverPlayer.drop(bandage, false);
-                    serverPlayer.displayClientMessage(Component.literal("Выживший обменял 8 изумрудов на бинт."), false);
+                    serverPlayer.displayClientMessage(Component.literal("Выживший обменял " + SurvivalConfig.getInt("npcs.bandage_price", 8, 1, 64) + " изумрудов на бинт."), false);
                     return InteractionResult.SUCCESS;
                 }
                 return InteractionResult.PASS;
