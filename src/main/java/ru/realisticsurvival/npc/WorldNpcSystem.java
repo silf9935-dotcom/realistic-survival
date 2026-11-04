@@ -1,31 +1,44 @@
 package ru.realisticsurvival.npc;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.PatrollingMonster;
 import net.minecraft.world.entity.monster.illager.Pillager;
 import net.minecraft.world.entity.monster.illager.Vindicator;
 import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
 
 /**
  * Three focused NPC groups: hostile bandits, armed military and marked story characters.
- * Story quest state is stored directly on each character as scoreboard tags.
+ * Spawn markers are invisible armor stands tagged with rs_spawn_bandits or rs_spawn_military.
  */
 public final class WorldNpcSystem {
     public static final String STORY_TAG = "rs_story_npc";
+    public static final String BANDIT_SPAWN_TAG = "rs_spawn_bandits";
+    public static final String MILITARY_SPAWN_TAG = "rs_spawn_military";
     private static final String BANDIT_TAG = "rs_npc_bandit";
     private static final String MILITARY_TAG = "rs_npc_military";
     private static final String STORY_STAGE_PREFIX = "rs_story_stage_";
     private static final String STORY_ROUTE_PREFIX = "rs_story_route_";
+    private static final long SPAWN_INTERVAL_TICKS = 6000L;
+    private static final int SPAWN_RADIUS = 64;
+    private static final int MAX_GROUP_PER_MARKER = 6;
 
     private WorldNpcSystem() {}
 
@@ -55,6 +68,22 @@ public final class WorldNpcSystem {
             }
         });
 
+        ServerTickEvents.END_WORLD_TICK.register(level -> {
+            if (level.getGameTime() % SPAWN_INTERVAL_TICKS != 0L
+                    || level.getDifficulty() == Difficulty.PEACEFUL) return;
+            for (ArmorStand marker : level.getEntitiesOfClass(ArmorStand.class,
+                    new AABB(level.getWorldBorder().getMinX(), level.getMinBuildHeight(),
+                            level.getWorldBorder().getMinZ(), level.getWorldBorder().getMaxX(),
+                            level.getMaxBuildHeight(), level.getWorldBorder().getMaxZ()),
+                    stand -> stand.getTags().contains(BANDIT_SPAWN_TAG)
+                            || stand.getTags().contains(MILITARY_SPAWN_TAG))) {
+                if (level.players().stream().noneMatch(player ->
+                        player.distanceToSqr(marker) <= 96.0 * 96.0)) continue;
+                boolean bandits = marker.getTags().contains(BANDIT_SPAWN_TAG);
+                spawnMarkerGroup(level, marker, bandits);
+            }
+        });
+
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             if (!(player instanceof ServerPlayer serverPlayer) || world.isClientSide()
                     || !(entity instanceof Villager villager)
@@ -64,6 +93,46 @@ public final class WorldNpcSystem {
             handleStoryInteraction(serverPlayer, villager, hand);
             return InteractionResult.SUCCESS;
         });
+    }
+
+    private static void spawnMarkerGroup(ServerLevel level, ArmorStand marker, boolean bandits) {
+        AABB area = new AABB(marker.blockPosition()).inflate(SPAWN_RADIUS);
+        int current = bandits
+                ? level.getEntitiesOfClass(Pillager.class, area,
+                    mob -> mob.getTags().contains(BANDIT_TAG)).size()
+                : level.getEntitiesOfClass(Vindicator.class, area,
+                    mob -> mob.getTags().contains(MILITARY_TAG)).size();
+        int amount = Math.min(2 + level.random.nextInt(2), MAX_GROUP_PER_MARKER - current);
+        for (int i = 0; i < amount; i++) {
+            BlockPos spawnPos = findSpawnPosition(level, marker.blockPosition(), level.random);
+            if (spawnPos == null) break;
+            if (bandits) {
+                Pillager pillager = EntityType.PILLAGER.spawn(level, spawnPos, EntitySpawnReason.EVENT);
+                if (pillager != null) {
+                    pillager.setPatrolTarget(marker.blockPosition());
+                    pillager.setPatrolLeader(i == 0);
+                    pillager.findPatrolTarget();
+                }
+            } else {
+                EntityType.VINDICATOR.spawn(level, spawnPos, EntitySpawnReason.EVENT);
+            }
+        }
+    }
+
+    private static BlockPos findSpawnPosition(ServerLevel level, BlockPos center, RandomSource random) {
+        for (int attempt = 0; attempt < 12; attempt++) {
+            int x = center.getX() + random.nextInt(17) - 8;
+            int z = center.getZ() + random.nextInt(17) - 8;
+            int startY = Math.min(center.getY() + 8, level.getMaxBuildHeight() - 2);
+            int minY = Math.max(center.getY() - 8, level.getMinBuildHeight() + 1);
+            for (int y = startY; y >= minY; y--) {
+                BlockPos pos = new BlockPos(x, y, z);
+                if (level.getBlockState(pos).isAir() && level.getBlockState(pos.above()).isAir()
+                        && level.getBlockState(pos.below()).isSolid()
+                        && level.getWorldBorder().isWithinBounds(pos)) return pos;
+            }
+        }
+        return null;
     }
 
     private static void handleStoryInteraction(ServerPlayer player, Villager character, InteractionHand hand) {
@@ -126,9 +195,7 @@ public final class WorldNpcSystem {
     }
 
     private static void give(ServerPlayer player, ItemStack stack) {
-        if (!player.getInventory().add(stack)) {
-            player.drop(stack, false);
-        }
+        if (!player.getInventory().add(stack)) player.drop(stack, false);
     }
 
     private static void consumeOne(ServerPlayer player, InteractionHand hand, ItemStack held) {
@@ -159,9 +226,7 @@ public final class WorldNpcSystem {
     }
 
     private static void setDefaultName(Entity entity, String name) {
-        if (!entity.hasCustomName()) {
-            entity.setCustomName(Component.literal(name));
-        }
+        if (!entity.hasCustomName()) entity.setCustomName(Component.literal(name));
     }
 
     private static int readStage(Villager villager) {
