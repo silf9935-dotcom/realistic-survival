@@ -5,6 +5,9 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.level.ServerPlayer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionResult;
@@ -19,6 +22,7 @@ import ru.realisticsurvival.core.config.SurvivalConfig;
 public final class InjurySystem {
     private static final String TAG = "rs_injury_";
     private static long ticks;
+    private static final Map<UUID, Long> NEXT_TREATMENT_TICK = new HashMap<>();
 
     private InjurySystem() {}
 
@@ -43,8 +47,17 @@ public final class InjurySystem {
                     || !stack.is(Items.PAPER) || read(serverPlayer) <= 0) {
                 return InteractionResult.PASS;
             }
+            long readyAt = NEXT_TREATMENT_TICK.getOrDefault(serverPlayer.getUUID(), 0L);
+            if (ticks < readyAt) {
+                long seconds = Math.max(1L, (readyAt - ticks + 19L) / 20L);
+                serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal(
+                        "§eПодожди перед следующей перевязкой: " + seconds + " сек."), true);
+                return InteractionResult.FAIL;
+            }
             int severity = read(serverPlayer);
             write(serverPlayer, severity - 1);
+            int cooldownSeconds = SurvivalConfig.getInt("injuries.treatment_cooldown_seconds", 10, 0, 300);
+            NEXT_TREATMENT_TICK.put(serverPlayer.getUUID(), ticks + cooldownSeconds * 20L);
             if (!serverPlayer.getAbilities().instabuild) stack.shrink(1);
             serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 80, 0, false, true, true));
             serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal(
@@ -56,6 +69,7 @@ public final class InjurySystem {
             if (!SurvivalConfig.getBoolean("injuries.enabled", true)) return;
             ticks++;
             if (ticks % 40 != 0) return;
+            NEXT_TREATMENT_TICK.keySet().removeIf(uuid -> server.getPlayerList().getPlayer(uuid) == null);
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 int severity = read(player);
                 if (severity >= 2) {
