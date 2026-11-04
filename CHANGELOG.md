@@ -1,3 +1,8 @@
+## 0.2.0-alpha.10
+
+- Add a quiet-rest mechanic: crouching while nearly motionless gradually reduces fatigue and restores stamina.
+- Dehydration now makes sprinting more expensive and slows stamina recovery, so thirst affects physical performance before critical dehydration.
+
 # Changelog
 
 ## 0.2.0-alpha.9
