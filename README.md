@@ -20,3 +20,8 @@ gradle build
 ```
 
 The remapped mod JAR will be placed in `build/libs/`.
+
+
+## Alpha 0.2.0
+
+The first playable needs loop adds thirst, stamina, fatigue, sanity, sleep recovery, water drinking and an action-bar status display. This release is an early gameplay preview.
