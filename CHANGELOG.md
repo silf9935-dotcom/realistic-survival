@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0-alpha.5
+
+- Critical sanity loss now causes periodic nausea.
+- Extremely low sanity also causes periodic weakness.
+
 ## 0.2.0-alpha.4
 
 - Low hunger now increases fatigue over time.
