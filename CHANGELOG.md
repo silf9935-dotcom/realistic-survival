@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0-alpha.6
+
+- Add persistent body temperature, affected by water, fire, hot biomes, and cold rainy weather.
+- Hypothermia and overheating now apply escalating survival penalties; temperature is shown in the action-bar HUD.
+
 ## 0.2.0-alpha.5
 
 - Critical sanity loss now causes periodic nausea.
