@@ -83,7 +83,7 @@ public final class SurvivalRuntime {
                 player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 45, 0, false, false, true));
             }
             if (state.fatigue >= 90) {
-                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 45, 0, false, false, true));
+                player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 45, 0, false, false, true));
                 player.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 45, 0, false, false, true));
             }
             if (state.thirst == 0 && ticks % 1200 == 0) {
