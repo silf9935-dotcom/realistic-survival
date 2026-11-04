@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0-alpha.9
+
+- Body temperature now responds to sustained sprinting as well as environmental exposure.
+- Heat stress increases thirst over time.
+- Extreme cold and overheating slow stamina recovery, connecting temperature to physical endurance.
+
+## 0.2.0-alpha.8
+
+- Stabilize survival physiology interactions and document the server-authoritative needs loop.
+
+## 0.2.0-alpha.7
+
+- Refine survival status feedback and persist physiological state consistently during active play.
+
+
 ## 0.2.0-alpha.6
 
 - Add persistent body temperature, affected by water, fire, hot biomes, and cold rainy weather.
