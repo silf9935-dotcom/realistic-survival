@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:paper",
+    "minecraft:string"
+  ],
+  "result": {
+    "id": "realistic_survival:bandage",
+    "count": 2
+  }
+}
