@@ -26,8 +26,10 @@ public final class InjurySystem {
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
             if (!SurvivalConfig.getBoolean("injuries.enabled", true)) return;
             if (!(entity instanceof ServerPlayer player) || player.isCreative() || player.isSpectator()) return;
-            if (damageTaken >= 4.0F) {
-                int severity = Math.min(3, read(player) + (damageTaken >= 8.0F ? 2 : 1));
+            double injuryThreshold = SurvivalConfig.getDouble("injuries.damage_threshold", 4.0, 0.0, 40.0);
+            double severeThreshold = SurvivalConfig.getDouble("injuries.severe_hit_threshold", 8.0, injuryThreshold, 80.0);
+            if (damageTaken >= injuryThreshold) {
+                int severity = Math.min(3, read(player) + (damageTaken >= severeThreshold ? 2 : 1));
                 write(player, severity);
                 player.displayClientMessage(net.minecraft.network.chat.Component.literal(
                         "§cПолучена травма! Тяжесть: " + severity + "/3. Используй бумагу как импровизированную повязку."), true);
