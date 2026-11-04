@@ -21,6 +21,10 @@ This development candidate extends the survival and injury loop with the first r
 - Companions track a persistent trust score: give them bread to increase trust.
 - At the configured trust threshold, trade emeralds with a companion for a bandage; the barter price is configurable.
 - Recruited survivors remember their owner through world saves, follow their owner, and can be told to stay or follow again by sneak-interacting.
+- Assign survivor specializations by giving an owned companion an iron sword (guard), iron pickaxe (scavenger), or shears (medic); the role is saved on the villager.
+- Assign one of three survivor faction identities with a white, red, or blue banner (North, Ash, Free). These are persistent identities, not yet a full diplomacy/war simulation.
+- Added a persistent three-stage supply quest: 4 iron ingots, 8 rotten flesh, then 8 cooked beef. Rewards are emeralds, bread, and a golden apple.
+- Interact with an owned companion using an empty hand to see its role, faction, trust and a simple day/night status line.
 - Player survival and injury state are stored on player entity tags and persist through relogs/world saves; recruited survivor ownership is stored on the villager.
 
 ### Configuration
@@ -42,12 +46,14 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 - `npcs.bread_trust=10` — trust gained for each bread given to a companion (1–50).
 - `npcs.trade_min_trust=20` — trust required before a companion trades (0–100).
 - `npcs.bandage_price=8` — emerald cost for one bandage (1–64).
+- `npcs.role_item_consumption=false` — consume the iron tool used to assign a survivor role.
 
 ### NPC roadmap and known limitations
 
 - The current NPC feature is a first prototype built on vanilla villagers, not a new custom NPC entity.
 - Companions now have a first defensive combat behavior: nearby vanilla hostile monsters that threaten the owner or approach the companion are selected as targets using vanilla villager navigation/attack behavior. This is a prototype, not a trained soldier system; weapon use, tactical commands and robust combat animation are not implemented.
-- Advanced jobs, needs, schedules, dialogue trees, multi-stage story quests, factions and settlements are still in development. The supply quest, trust and bandage barter loop remain intentionally basic.
+- Survivor role labels, faction identities, a status dialogue and a three-stage supply quest are implemented as an initial progression layer. They do not yet provide distinct profession AI, a full dialogue tree, faction diplomacy/war, or generated camps/settlements with guards and stockpiles.
+- True work/home schedules and a full story quest campaign remain in development. The day/night line is informational; it is not yet a complete schedule simulation.
 - The HUD is action-bar based, not a dedicated graphical overlay.
 - The current bandage uses a placeholder vanilla paper texture; advanced medicine, bleeding, fractures and infection are not implemented.
 - Gameplay balance, multiplayer behavior and NPC pathfinding still need hands-on testing in Minecraft 1.21.11.
