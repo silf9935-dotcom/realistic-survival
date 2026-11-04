@@ -9,7 +9,7 @@ This first beta candidate consolidates the alpha survival loop and introduces a 
 ### Implemented systems
 
 - Persistent thirst, stamina, fatigue, sanity and body temperature.
-- Drink from water sources by crouching with an empty hand.
+- Drink from water sources by crouching with an empty hand; untreated water has a configurable 15% contamination risk that can cause brief nausea.
 - Sprinting, hunger, dehydration, fatigue and temperature affect stamina and movement.
 - Hot and cold environments affect body temperature; heat increases thirst and severe cold increases fatigue.
 - Sleeping and quiet crouching restore selected survival values.
@@ -27,6 +27,7 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 - `hud.compact=false` — show only thirst, stamina and fatigue.
 - `survival.cold_fatigue=true` — severe cold increases fatigue.
 - `survival.hot_thirst=true` — hot biomes add thirst loss.
+- `survival.unsafe_water=true` — untreated natural water can cause brief nausea (15% chance).
 - `injuries.enabled=true` — enable injury penalties and paper bandages.
 
 The existing `world.fire.*` values are reserved configuration defaults; a full fire simulation is not implemented.
