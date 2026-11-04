@@ -46,6 +46,30 @@ public final class SurvivorNpcSystem {
                     serverPlayer.displayClientMessage(Component.literal("Выживший благодарен за еду. Доверие: " + trust + "/100."), false);
                     return InteractionResult.SUCCESS;
                 }
+                if (held.is(Items.WHEAT)) {
+                    String questTag = "rs_survivor_supply_quest_" + serverPlayer.getUUID();
+                    String completedTag = "rs_survivor_supply_done_" + serverPlayer.getUUID();
+                    if (villager.getTags().contains(completedTag)) {
+                        serverPlayer.displayClientMessage(Component.literal("Вы уже помогли с запасами. Спасибо!"), true);
+                        return InteractionResult.SUCCESS;
+                    }
+                    if (!villager.getTags().contains(questTag)) {
+                        villager.addTag(questTag);
+                        serverPlayer.displayClientMessage(Component.literal("Задание: принеси 16 пшеницы, чтобы пополнить запасы выжившего."), false);
+                    }
+                    if (held.getCount() < 16) {
+                        serverPlayer.displayClientMessage(Component.literal("Для задания нужно 16 пшеницы. Сейчас у тебя: " + held.getCount() + "."), true);
+                        return InteractionResult.SUCCESS;
+                    }
+                    held.shrink(16);
+                    villager.removeTag(questTag);
+                    villager.addTag(completedTag);
+                    changeTrust(villager, ownerTag, 20);
+                    ItemStack reward = new ItemStack(Items.EMERALD, 3);
+                    if (!serverPlayer.getInventory().add(reward)) serverPlayer.drop(reward, false);
+                    serverPlayer.displayClientMessage(Component.literal("Задание выполнено! Выживший выдал 3 изумруда и стал больше тебе доверять."), false);
+                    return InteractionResult.SUCCESS;
+                }
                 if (held.is(Items.EMERALD) && held.getCount() >= SurvivalConfig.getInt("npcs.bandage_price", 8, 1, 64)) {
                     int trust = readTrust(villager, ownerTag);
                     if (trust < SurvivalConfig.getInt("npcs.trade_min_trust", 20, 0, 100)) {
