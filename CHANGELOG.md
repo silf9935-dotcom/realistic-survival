@@ -8,6 +8,7 @@
 - Display current injury severity in the survival action-bar HUD while a wound is active.
 - Make untreated-water contamination probability configurable (0–100%).
 - Ensure disabling the injury system also disables ongoing injury penalties without deleting saved wounds.
+- Add configurable normal and severe-hit damage thresholds for injury generation.
 - Retain thirst, stamina, fatigue, sanity, body temperature, environmental exposure, quiet rest, sleep recovery and configurable action-bar HUD.
 - This is a beta candidate, not a claim that the planned full overhaul is complete; proper graphical HUD, dedicated medical items/recipes, broader world simulation and in-game multiplayer/balance testing remain future work.
 
