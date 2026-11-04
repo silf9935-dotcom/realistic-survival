@@ -32,6 +32,7 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 - `injuries.enabled=true` — enable injury penalties and paper bandages.
 - `injuries.damage_threshold=4.0` — minimum damage from one hit required to cause an injury.
 - `injuries.severe_hit_threshold=8.0` — damage from one hit required to add two injury severity levels instead of one. Both thresholds are clamped to safe ranges; the severe threshold cannot be lower than the normal threshold.
+- `injuries.treatment_cooldown_seconds=10` — delay between paper bandage uses (0–300 seconds), preventing instant repeated treatment.
 
 The existing `world.fire.*` values are reserved configuration defaults; a full fire simulation is not implemented.
 
