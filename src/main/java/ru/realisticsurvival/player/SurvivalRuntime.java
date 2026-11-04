@@ -90,9 +90,15 @@ public final class SurvivalRuntime {
                     state.bodyTemperature = Math.min(430, state.bodyTemperature + 1);
                 } else if (biomeTemperature <= 0.2F && player.level().isRainingAt(player.blockPosition())) {
                     state.bodyTemperature = Math.max(250, state.bodyTemperature - 1);
+                } else if (player.isSprinting()) {
+                    state.bodyTemperature = Math.min(430, state.bodyTemperature + 1);
                 } else if (ticks % 200 == 0) {
                     if (state.bodyTemperature < 370) state.bodyTemperature++;
                     else if (state.bodyTemperature > 370) state.bodyTemperature--;
+                }
+                // Heat stress increases fluid loss; cold stress makes physical recovery harder.
+                if (state.bodyTemperature >= 390 && ticks % 300 == 0) {
+                    state.thirst = Math.max(0, state.thirst - 1);
                 }
             }
             if (state.bodyTemperature <= 350) {
@@ -121,6 +127,8 @@ public final class SurvivalRuntime {
                 if (ticks % sprintInterval == 0) state.stamina = Math.max(0, state.stamina - 1);
             } else {
                 int recoveryInterval = exhaustedByHunger ? 6 : 3;
+                if (state.bodyTemperature <= 340) recoveryInterval *= 2;
+                if (state.bodyTemperature >= 400) recoveryInterval *= 2;
                 if (ticks % recoveryInterval == 0) state.stamina = Math.min(100, state.stamina + 1);
             }
 
