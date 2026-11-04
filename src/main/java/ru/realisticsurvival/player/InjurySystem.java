@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
@@ -36,7 +36,7 @@ public final class InjurySystem {
             ItemStack stack = player.getItemInHand(hand);
             if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)
                     || !stack.is(Items.PAPER) || read(serverPlayer) <= 0) {
-                return InteractionResultHolder.pass(stack);
+                return InteractionResult.PASS;
             }
             int severity = read(serverPlayer);
             write(serverPlayer, severity - 1);
@@ -44,7 +44,7 @@ public final class InjurySystem {
             serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 80, 0, false, true, true));
             serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal(
                     severity == 1 ? "§aТы перевязал рану." : "§eРана обработана, но нужна ещё одна повязка."), true);
-            return InteractionResultHolder.success(stack);
+            return InteractionResult.SUCCESS;
         });
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
