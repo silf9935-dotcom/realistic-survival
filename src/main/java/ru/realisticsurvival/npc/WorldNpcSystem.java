@@ -140,7 +140,8 @@ public final class WorldNpcSystem {
 
     private static int countItem(ServerPlayer player, net.minecraft.world.item.Item item) {
         int count = 0;
-        for (ItemStack stack : player.getInventory().items) {
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
             if (stack.is(item)) count += stack.getCount();
         }
         return count;
@@ -148,8 +149,8 @@ public final class WorldNpcSystem {
 
     private static void removeItems(ServerPlayer player, net.minecraft.world.item.Item item, int amount) {
         int remaining = amount;
-        for (ItemStack stack : player.getInventory().items) {
-            if (remaining <= 0) break;
+        for (int slot = 0; slot < player.getInventory().getContainerSize() && remaining > 0; slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
             if (!stack.is(item)) continue;
             int removed = Math.min(remaining, stack.getCount());
             stack.shrink(removed);
