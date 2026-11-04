@@ -23,6 +23,15 @@ The NPC scope is intentionally limited to exactly three groups:
 - **Military:** vindicators are named and tagged as military personnel, equipped with iron weapons and full iron armor for close combat.
 - **Story characters:** individually marked villagers are persistent, non-recruitable quest givers with saved dialogue and quest state.
 
+Place invisible spawn markers with these commands (the marker is fixed in place and can be moved by changing its coordinates):
+
+```mcfunction
+/summon minecraft:armor_stand ~ ~ ~ {Tags:["rs_spawn_bandits"],Invisible:1b,Marker:1b,NoGravity:1b,Invulnerable:1b}
+/summon minecraft:armor_stand ~ ~ ~ {Tags:["rs_spawn_military"],Invisible:1b,Marker:1b,NoGravity:1b,Invulnerable:1b}
+```
+
+When a player comes within 96 blocks, each marker can dispatch a group every five minutes. Groups spawn on nearby solid ground, within an 8-block radius, and are capped at six matching NPCs within 64 blocks of the marker. Bandit groups use the vanilla pillager patrol movement; military groups use vindicator combat AI. Markers only operate in loaded areas and do not force-load chunks.
+
 Story characters can be created with a vanilla summon command, for example:
 
 ```mcfunction
@@ -50,5 +59,5 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 
 ### NPC roadmap
 
-- Bandits and military currently use vanilla hostile illager entity types; custom models, equipment sets, patrol logic and faction relationships are future work.
+- Bandit and military spawn markers, timed group dispatches and local population caps are implemented. Bandits use the vanilla patrol movement; custom models, expanded patrol routes and faction relationships are future work.
 - Story characters currently have a small persistent dialogue prototype; branching quests, unique characters and story chapters are future work.
