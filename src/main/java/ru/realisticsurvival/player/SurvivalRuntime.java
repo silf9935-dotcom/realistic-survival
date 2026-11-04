@@ -70,8 +70,13 @@ public final class SurvivalRuntime {
             if (player.isSleeping()) {
                 if (ticks % 120 == 0) state.fatigue = Math.max(0, state.fatigue - 1);
                 if (ticks % 40 == 0) state.stamina = Math.min(100, state.stamina + 2);
-            } else if (ticks % 1200 == 0) {
-                state.fatigue = Math.min(100, state.fatigue + 1);
+                if (ticks % 600 == 0) state.sanity = Math.min(100, state.sanity + 1);
+            } else {
+                if (ticks % 1200 == 0) state.fatigue = Math.min(100, state.fatigue + 1);
+                if (player.isSprinting() && ticks % 300 == 0) {
+                    state.fatigue = Math.min(100, state.fatigue + 1);
+                    state.thirst = Math.max(0, state.thirst - 1);
+                }
             }
 
             if (player.isSprinting()) {
