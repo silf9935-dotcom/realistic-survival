@@ -46,6 +46,10 @@ public final class SurvivalConfig {
         VALUES.setProperty("injuries.severe_hit_threshold", "8.0");
         VALUES.setProperty("injuries.treatment_cooldown_seconds", "10");
         VALUES.setProperty("npcs.survivors_enabled", "true");
+        VALUES.setProperty("npcs.starting_trust", "10");
+        VALUES.setProperty("npcs.bread_trust", "10");
+        VALUES.setProperty("npcs.trade_min_trust", "20");
+        VALUES.setProperty("npcs.bandage_price", "8");
         VALUES.setProperty("world.fire.spread", "realistic");
         VALUES.setProperty("world.fire.forest", "full");
         VALUES.setProperty("world.fire.structures", "full");
