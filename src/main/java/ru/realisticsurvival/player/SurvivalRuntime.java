@@ -6,6 +6,9 @@ import java.util.UUID;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.ActionResult;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,6 +38,18 @@ public final class SurvivalRuntime {
             if (state != null) state.write(player);
         });
         ServerTickEvents.END_SERVER_TICK.register(SurvivalRuntime::tick);
+        UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
+            if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer
+                    && serverPlayer.isShiftKeyDown()
+                    && world.getBlockState(hit.getBlockPos()).getFluidState().is(FluidTags.WATER)) {
+                State state = STATES.computeIfAbsent(serverPlayer.getUUID(), ignored -> State.read(serverPlayer));
+                state.thirst = Math.min(100, state.thirst + 20);
+                state.write(serverPlayer);
+                serverPlayer.displayClientMessage(Component.literal("§bВы утолили жажду: +20%"), true);
+                return ActionResult.SUCCESS;
+            }
+            return ActionResult.PASS;
+        });
     }
 
     private static void tick(MinecraftServer server) {
@@ -43,7 +58,12 @@ public final class SurvivalRuntime {
             State state = STATES.computeIfAbsent(player.getUUID(), ignored -> State.read(player));
 
             if (ticks % 600 == 0) state.thirst = Math.max(0, state.thirst - 1);
-            if (ticks % 1200 == 0) state.fatigue = Math.min(100, state.fatigue + 1);
+            if (player.isSleeping()) {
+                if (ticks % 120 == 0) state.fatigue = Math.max(0, state.fatigue - 1);
+                if (ticks % 40 == 0) state.stamina = Math.min(100, state.stamina + 2);
+            } else if (ticks % 1200 == 0) {
+                state.fatigue = Math.min(100, state.fatigue + 1);
+            }
 
             if (player.isSprinting()) {
                 if (ticks % 5 == 0) state.stamina = Math.max(0, state.stamina - 1);
