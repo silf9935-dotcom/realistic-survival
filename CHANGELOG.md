@@ -1,3 +1,9 @@
+## 0.2.0-alpha.16
+
+- Cold exposure now increases fatigue and makes sprinting consume stamina faster when body temperature becomes critically low.
+- Added working HUD settings: the overlay can be disabled or switched to a compact layout.
+- Added configuration switches for cold-related fatigue and hot-biome thirst.
+
 ## 0.2.0-alpha.15
 
 - Critically low stamina now causes a brief movement penalty, and extreme fatigue further wears down sanity.
