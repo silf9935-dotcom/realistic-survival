@@ -18,6 +18,8 @@ This development candidate extends the survival and injury loop with the first r
 - Hard hits can cause persistent injuries with escalating weakness/slowness penalties.
 - Craftable bandages (paper + string) reduce injury severity; paper remains supported as an improvised fallback.
 - Sneak-interact with a villager while holding 5 emeralds to recruit them as a survivor companion.
+- Companions track a persistent trust score: give them bread to increase trust.
+- At the configured trust threshold, trade emeralds with a companion for a bandage; the barter price is configurable.
 - Recruited survivors remember their owner through world saves, follow their owner, and can be told to stay or follow again by sneak-interacting.
 - Player survival and injury state are stored on player entity tags and persist through relogs/world saves; recruited survivor ownership is stored on the villager.
 
@@ -36,11 +38,15 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 - `injuries.severe_hit_threshold=8.0` — damage from one hit required to add two injury severity levels instead of one.
 - `injuries.treatment_cooldown_seconds=10` — delay between bandage uses (0–300 seconds).
 - `npcs.survivors_enabled=true` — enable or disable the survivor companion prototype.
+- `npcs.starting_trust=10` — trust when a survivor is recruited (0–100).
+- `npcs.bread_trust=10` — trust gained for each bread given to a companion (1–50).
+- `npcs.trade_min_trust=20` — trust required before a companion trades (0–100).
+- `npcs.bandage_price=8` — emerald cost for one bandage (1–64).
 
 ### NPC roadmap and known limitations
 
 - The current NPC feature is a first prototype built on vanilla villagers, not a new custom NPC entity.
-- Companions currently follow or stay; advanced combat commands, jobs, needs, schedules, dialogue, trading, quests, reputation, factions and settlements are not implemented yet.
+- Companions currently follow or stay; advanced combat commands, jobs, needs, schedules, dialogue trees, quests, factions and settlements are not implemented yet. The trust and bandage barter loop is intentionally basic.
 - The HUD is action-bar based, not a dedicated graphical overlay.
 - The current bandage uses a placeholder vanilla paper texture; advanced medicine, bleeding, fractures and infection are not implemented.
 - Gameplay balance, multiplayer behavior and NPC pathfinding still need hands-on testing in Minecraft 1.21.11.
