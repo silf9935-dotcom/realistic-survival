@@ -42,6 +42,8 @@ public final class SurvivalConfig {
         VALUES.setProperty("survival.unsafe_water", "true");
         VALUES.setProperty("survival.unsafe_water_chance", "15");
         VALUES.setProperty("injuries.enabled", "true");
+        VALUES.setProperty("injuries.damage_threshold", "4.0");
+        VALUES.setProperty("injuries.severe_hit_threshold", "8.0");
         VALUES.setProperty("world.fire.spread", "realistic");
         VALUES.setProperty("world.fire.forest", "full");
         VALUES.setProperty("world.fire.structures", "full");
@@ -59,6 +61,16 @@ public final class SurvivalConfig {
     public static int getInt(String key, int fallback, int min, int max) {
         try {
             return Math.max(min, Math.min(max, Integer.parseInt(VALUES.getProperty(key, Integer.toString(fallback)).trim())));
+        } catch (NumberFormatException exception) {
+            return fallback;
+        }
+    }
+
+    public static double getDouble(String key, double fallback, double min, double max) {
+        try {
+            double value = Double.parseDouble(VALUES.getProperty(key, Double.toString(fallback)).trim());
+            if (!Double.isFinite(value)) return fallback;
+            return Math.max(min, Math.min(max, value));
         } catch (NumberFormatException exception) {
             return fallback;
         }
