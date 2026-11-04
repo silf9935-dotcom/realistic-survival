@@ -6,6 +6,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import ru.realisticsurvival.RealisticSurvival;
 
 public final class MedicalItems {
@@ -20,6 +22,7 @@ public final class MedicalItems {
     }
 
     public static void initialize() {
-        // Referencing this method ensures the item is registered during mod initialization.
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS)
+                .register(entries -> entries.accept(BANDAGE));
     }
 }
