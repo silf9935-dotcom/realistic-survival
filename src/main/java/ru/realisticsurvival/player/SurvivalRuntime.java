@@ -76,6 +76,7 @@ public final class SurvivalRuntime {
                     state.fatigue = Math.max(0, state.fatigue - 1);
                     state.stamina = Math.min(100, state.stamina + 2);
                 }
+                if (state.restTicks % 600 == 0) state.sanity = Math.min(100, state.sanity + 1);
             } else {
                 state.restTicks = 0;
             }
@@ -112,6 +113,9 @@ public final class SurvivalRuntime {
                 if (state.bodyTemperature >= 390 && ticks % 300 == 0) {
                     state.thirst = Math.max(0, state.thirst - 1);
                 }
+                if (biomeTemperature >= 1.5F && ticks % 600 == 0) {
+                    state.thirst = Math.max(0, state.thirst - 1);
+                }
             }
             if (state.bodyTemperature <= 350) {
                 player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 45, 0, false, false, true));
@@ -125,6 +129,13 @@ public final class SurvivalRuntime {
             }
             if (state.bodyTemperature >= 410) {
                 player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 45, 0, false, false, true));
+            }
+
+            // Darkness wears down mental resilience; safe, well-lit places help recovery.
+            if (!player.isSleeping() && ticks % 1800 == 0) {
+                int light = player.level().getMaxLocalRawBrightness(player.blockPosition());
+                if (light <= 3) state.sanity = Math.max(0, state.sanity - 1);
+                else if (light >= 12 && state.fatigue < 70) state.sanity = Math.min(100, state.sanity + 1);
             }
 
             int hunger = player.getFoodData().getFoodLevel();
@@ -152,6 +163,12 @@ public final class SurvivalRuntime {
 
             if (state.stamina == 0 && player.isSprinting()) {
                 player.setSprinting(false);
+            }
+            if (state.stamina <= 10 && ticks % 40 == 0) {
+                player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 50, 0, false, false, true));
+            }
+            if (state.fatigue >= 95 && ticks % 600 == 0 && !player.isSleeping()) {
+                state.sanity = Math.max(0, state.sanity - 1);
             }
             if (state.thirst < 15) {
                 player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 45, 0, false, false, true));
