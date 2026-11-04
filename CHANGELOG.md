@@ -1,3 +1,24 @@
+## 0.2.0-alpha.15
+
+- Critically low stamina now causes a brief movement penalty, and extreme fatigue further wears down sanity.
+- Consolidate the survival feedback loop across hydration, temperature, fatigue, stamina and sanity.
+
+## 0.2.0-alpha.14
+
+- Add a low-stamina movement penalty so exhausting yourself has an immediate gameplay consequence.
+
+## 0.2.0-alpha.13
+
+- Hot biomes now increase thirst loss over time, in addition to heat stress from body temperature.
+
+## 0.2.0-alpha.12
+
+- Darkness gradually reduces sanity; well-lit surroundings support sanity recovery when fatigue is not severe.
+
+## 0.2.0-alpha.11
+
+- Quiet resting now also restores sanity gradually, making safe breaks useful beyond stamina and fatigue recovery.
+
 ## 0.2.0-alpha.10
 
 - Add a quiet-rest mechanic: crouching while nearly motionless gradually reduces fatigue and restores stamina.
