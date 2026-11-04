@@ -168,7 +168,7 @@ public final class WorldNpcSystem {
             if (!tag.startsWith(STORY_STAGE_PREFIX)) continue;
             try {
                 return Math.max(0, Math.min(3,
-                        Integer.parseInt(tag.substring(STORY_STAGE_PREFIX.length())));
+                        Integer.parseInt(tag.substring(STORY_STAGE_PREFIX.length()))));
             } catch (NumberFormatException ignored) {
                 return 0;
             }
