@@ -29,7 +29,7 @@ public final class SurvivorCombatSystem {
                 String ownerTag = "rs_survivor_owner_" + owner.getUUID();
                 var level = owner.level();
                 var hostiles = level.getEntitiesOfClass(Monster.class,
-                        new AABB(owner.blockPosition()).inflate(14.0),
+                        new AABB(owner.blockPosition()).inflate(22.0),
                         hostile -> hostile.isAlive() && !hostile.isRemoved());
 
                 for (Villager companion : level.getEntitiesOfClass(Villager.class,
@@ -38,7 +38,7 @@ public final class SurvivorCombatSystem {
                     boolean guard = companion.getTags().contains("rs_survivor_role_guard");
                     boolean medic = companion.getTags().contains("rs_survivor_role_medic");
                     if (medic && companion.distanceToSqr(owner) <= 8.0 * 8.0
-                            && owner.getHealth() < owner.getMaxHealth() * 0.65f && ticks % 40 == 0) {
+                            && owner.getHealth() < owner.getMaxHealth() * 0.65f && ticks % 4 == 0) {
                         owner.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 60, 0));
                     }
                     double defenseRadius = guard ? 22.0 : 14.0;
