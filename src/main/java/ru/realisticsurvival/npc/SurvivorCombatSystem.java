@@ -25,7 +25,7 @@ public final class SurvivorCombatSystem {
 
             for (ServerPlayer owner : server.getPlayerList().getPlayers()) {
                 String ownerTag = "rs_survivor_owner_" + owner.getUUID();
-                var level = owner.serverLevel();
+                var level = owner.level();
                 var hostiles = level.getEntitiesOfClass(Monster.class,
                         new AABB(owner.blockPosition()).inflate(14.0),
                         hostile -> hostile.isAlive() && !hostile.isRemoved());
@@ -38,7 +38,7 @@ public final class SurvivorCombatSystem {
                             .filter(hostile -> hostile.getTarget() == owner
                                     || hostile.getTarget() == companion
                                     || hostile.distanceToSqr(companion) < 10.0 * 10.0)
-                            .min(java.util.Comparator.comparingDouble(companion::distanceToSqr))
+                            .min(java.util.Comparator.comparingDouble((Monster hostile) -> companion.distanceToSqr(hostile)))
                             .orElse(null);
 
                     if (threat != null) {
