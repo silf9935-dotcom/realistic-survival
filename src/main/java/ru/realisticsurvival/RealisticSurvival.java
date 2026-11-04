@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import ru.realisticsurvival.core.config.SurvivalConfig;
 import ru.realisticsurvival.player.SurvivalRuntime;
 import ru.realisticsurvival.player.InjurySystem;
+import ru.realisticsurvival.item.MedicalItems;
 
 public final class RealisticSurvival implements ModInitializer {
     public static final String MOD_ID = "realistic_survival";
@@ -14,6 +15,7 @@ public final class RealisticSurvival implements ModInitializer {
     @Override
     public void onInitialize() {
         SurvivalConfig.load();
+        MedicalItems.initialize();
         SurvivalRuntime.register();
         InjurySystem.register();
         LOGGER.info("Realistic Survival survival systems initialized.");
