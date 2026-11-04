@@ -161,7 +161,17 @@ public final class SurvivorProgressionSystem {
         return 0;
     }
 
-    private static int readNumber(Villager villager, String prefix) {\n        for (String tag : villager.getTags()) {\n            if (tag.startsWith(prefix)) {\n                try { return Math.max(0, Math.min(64, Integer.parseInt(tag.substring(prefix.length())))); }\n                catch (NumberFormatException ignored) { return 0; }\n            }\n        }\n        return 0;\n    }\n\n    private static String readValue(Villager villager, String prefix, String fallback) {
+    private static int readNumber(Villager villager, String prefix) {
+        for (String tag : villager.getTags()) {
+            if (tag.startsWith(prefix)) {
+                try { return Math.max(0, Math.min(64, Integer.parseInt(tag.substring(prefix.length())))); }
+                catch (NumberFormatException ignored) { return 0; }
+            }
+        }
+        return 0;
+    }
+
+    private static String readValue(Villager villager, String prefix, String fallback) {
         return villager.getTags().stream().filter(tag -> tag.startsWith(prefix))
                 .map(tag -> tag.substring(prefix.length())).findFirst().orElse(fallback);
     }
