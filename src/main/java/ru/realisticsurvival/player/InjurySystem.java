@@ -65,6 +65,10 @@ public final class InjurySystem {
         });
     }
 
+    public static int getSeverity(ServerPlayer player) {
+        return read(player);
+    }
+
     private static int read(ServerPlayer player) {
         String prefix = TAG;
         for (String tag : player.getTags()) {
