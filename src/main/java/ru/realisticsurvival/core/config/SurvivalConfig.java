@@ -45,6 +45,7 @@ public final class SurvivalConfig {
         VALUES.setProperty("injuries.damage_threshold", "4.0");
         VALUES.setProperty("injuries.severe_hit_threshold", "8.0");
         VALUES.setProperty("injuries.treatment_cooldown_seconds", "10");
+        VALUES.setProperty("npcs.survivors_enabled", "true");
         VALUES.setProperty("world.fire.spread", "realistic");
         VALUES.setProperty("world.fire.forest", "full");
         VALUES.setProperty("world.fire.structures", "full");
