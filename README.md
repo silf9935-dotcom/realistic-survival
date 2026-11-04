@@ -27,7 +27,8 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 - `hud.compact=false` — show only thirst, stamina and fatigue.
 - `survival.cold_fatigue=true` — severe cold increases fatigue.
 - `survival.hot_thirst=true` — hot biomes add thirst loss.
-- `survival.unsafe_water=true` — untreated natural water can cause brief nausea (15% chance).
+- `survival.unsafe_water=true` — untreated natural water can cause brief nausea.
+- `survival.unsafe_water_chance=15` — contamination chance from 0 to 100 percent.
 - `injuries.enabled=true` — enable injury penalties and paper bandages.
 
 The existing `world.fire.*` values are reserved configuration defaults; a full fire simulation is not implemented.
