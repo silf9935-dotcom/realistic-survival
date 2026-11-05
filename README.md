@@ -56,8 +56,15 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 - `injuries.damage_threshold=4.0` — minimum damage from one hit required to cause an injury.
 - `injuries.severe_hit_threshold=8.0` — damage from one hit required to add two injury severity levels instead of one.
 - `injuries.treatment_cooldown_seconds=10` — delay between bandage uses (0–300 seconds).
+- `world.npc.faction_wars=true` — enable hostility between bandit and military factions.
+- `world.npc.faction_war_scan_ticks=40` — interval for faction target scans (20–200 ticks).
+- `world.npc.faction_detection_radius=24` — maximum line-of-sight distance for faction combat (8–64 blocks).
+- `world.npc.spawn_interval_seconds=300` — dispatch interval per active marker (60–3600 seconds).
+- `world.npc.spawn_radius=8` — maximum horizontal spawn distance from a marker (2–24 blocks).
+- `world.npc.population_radius=64` and `world.npc.population_cap=6` — local faction population limit.
+- `world.npc.group_min=2` and `world.npc.group_max=3` — dispatched group size (1–8).
 
 ### NPC roadmap
 
-- Bandit and military spawn markers, timed group dispatches and local population caps are implemented. Bandits use the vanilla patrol movement; custom models, expanded patrol routes and faction relationships are future work.
+- Bandit and military spawn markers, timed group dispatches, configurable local population caps and faction hostility are implemented. Nearby bandits and military acquire each other as targets when they have line of sight; each faction keeps existing targets such as players. Expanded waypoint patrol routes, custom models and faction diplomacy are future work.
 - Story characters currently have a small persistent dialogue prototype; branching quests, unique characters and story chapters are future work.
