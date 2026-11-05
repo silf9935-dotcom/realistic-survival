@@ -3,6 +3,7 @@ package ru.realisticsurvival.client;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.Identifier;
@@ -13,6 +14,9 @@ public final class RealisticSurvivalClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        // Replace vanilla hearts and hunger icons with the survival meters; keep armor and hotbar.
+        HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, original -> (graphics, delta) -> {});
+        HudElementRegistry.replaceElement(VanillaHudElements.FOOD_BAR, original -> (graphics, delta) -> {});
         ClientPlayNetworking.registerGlobalReceiver(SurvivalHudPayload.TYPE,
                 (payload, context) -> latest = payload);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("realistic_survival", "survival_hud"),
