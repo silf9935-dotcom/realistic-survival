@@ -22,6 +22,7 @@ import ru.realisticsurvival.item.MedicalItems;
  */
 public final class InjurySystem {
     private static final String TAG = "rs_injury_";
+    private static final String BODY_TAG = "rs_injury_parts_";
     private static long ticks;
     private static final Map<UUID, Long> NEXT_TREATMENT_TICK = new HashMap<>();
 
@@ -36,6 +37,8 @@ public final class InjurySystem {
             if (damageTaken >= injuryThreshold) {
                 int severity = Math.min(3, read(player) + (damageTaken >= severeThreshold ? 2 : 1));
                 write(player, severity);
+                int part = player.getRandom().nextInt(9);
+                writeBodyMask(player, getBodyMask(player) | (1 << part));
                 player.displayClientMessage(net.minecraft.network.chat.Component.literal(
                         "§cПолучена травма! Тяжесть: " + severity + "/3. Используй бинт или бумагу для перевязки."), true);
             }
@@ -87,6 +90,21 @@ public final class InjurySystem {
         return read(player);
     }
 
+    public static int getBodyMask(ServerPlayer player) {
+        for (String tag : player.getTags()) {
+            if (tag.startsWith(BODY_TAG)) {
+                try { return Math.max(0, Math.min(511, Integer.parseInt(tag.substring(BODY_TAG.length())))); }
+                catch (NumberFormatException ignored) { return 0; }
+            }
+        }
+        return read(player) > 0 ? (1 << 4) : 0;
+    }
+
+    private static void writeBodyMask(ServerPlayer player, int mask) {
+        player.getTags().stream().filter(tag -> tag.startsWith(BODY_TAG)).toList().forEach(player::removeTag);
+        if (mask > 0) player.addTag(BODY_TAG + (mask & 511));
+    }
+
     private static int read(ServerPlayer player) {
         String prefix = TAG;
         for (String tag : player.getTags()) {
@@ -102,5 +120,6 @@ public final class InjurySystem {
         player.getTags().stream().filter(tag -> tag.startsWith(TAG)).toList().forEach(player::removeTag);
         int clamped = Math.max(0, Math.min(3, severity));
         if (clamped > 0) player.addTag(TAG + clamped);
+        else writeBodyMask(player, 0);
     }
 }
