@@ -11,6 +11,8 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -22,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.util.RandomSource;
+import ru.realisticsurvival.core.config.SurvivalConfig;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,9 +40,7 @@ public final class WorldNpcSystem {
     private static final String MILITARY_TAG = "rs_npc_military";
     private static final String STORY_STAGE_PREFIX = "rs_story_stage_";
     private static final String STORY_ROUTE_PREFIX = "rs_story_route_";
-    private static final long SPAWN_INTERVAL_TICKS = 6000L;
-    private static final int SPAWN_RADIUS = 64;
-    private static final int MAX_GROUP_PER_MARKER = 6;
+    private static final int PLAYER_SCAN_RADIUS = 96;
 
     private WorldNpcSystem() {}
 
@@ -70,12 +71,22 @@ public final class WorldNpcSystem {
         });
 
         ServerTickEvents.END_WORLD_TICK.register(level -> {
-            if (level.getGameTime() % SPAWN_INTERVAL_TICKS != 0L
-                    || level.getDifficulty() == Difficulty.PEACEFUL) return;
+            if (level.getDifficulty() == Difficulty.PEACEFUL) return;
+
+            long gameTime = level.getGameTime();
+            int warInterval = SurvivalConfig.getInt("world.npc.faction_war_scan_ticks", 40, 20, 200);
+            if (SurvivalConfig.getBoolean("world.npc.faction_wars", true)
+                    && gameTime % warInterval == 0L) {
+                tickFactionWar(level);
+            }
+
+            int spawnIntervalSeconds = SurvivalConfig.getInt("world.npc.spawn_interval_seconds", 300, 60, 3600);
+            if (gameTime % (spawnIntervalSeconds * 20L) != 0L) return;
+
             Set<java.util.UUID> processedMarkers = new HashSet<>();
             for (ServerPlayer player : level.players()) {
                 for (ArmorStand marker : level.getEntitiesOfClass(ArmorStand.class,
-                        new AABB(player.blockPosition()).inflate(96.0),
+                        new AABB(player.blockPosition()).inflate(PLAYER_SCAN_RADIUS),
                         stand -> stand.getTags().contains(BANDIT_SPAWN_TAG)
                                 || stand.getTags().contains(MILITARY_SPAWN_TAG))) {
                     if (!processedMarkers.add(marker.getUUID())) continue;
@@ -97,13 +108,18 @@ public final class WorldNpcSystem {
     }
 
     private static void spawnMarkerGroup(ServerLevel level, ArmorStand marker, boolean bandits) {
-        AABB area = new AABB(marker.blockPosition()).inflate(SPAWN_RADIUS);
+        int populationRadius = SurvivalConfig.getInt("world.npc.population_radius", 64, 16, 128);
+        int populationCap = SurvivalConfig.getInt("world.npc.population_cap", 6, 1, 24);
+        AABB area = new AABB(marker.blockPosition()).inflate(populationRadius);
         int current = bandits
                 ? level.getEntitiesOfClass(Pillager.class, area,
                     mob -> mob.getTags().contains(BANDIT_TAG)).size()
                 : level.getEntitiesOfClass(Vindicator.class, area,
                     mob -> mob.getTags().contains(MILITARY_TAG)).size();
-        int amount = Math.min(2 + level.random.nextInt(2), MAX_GROUP_PER_MARKER - current);
+        int minGroup = SurvivalConfig.getInt("world.npc.group_min", 2, 1, 8);
+        int maxGroup = SurvivalConfig.getInt("world.npc.group_max", 3, minGroup, 8);
+        int amount = Math.min(minGroup + level.random.nextInt(maxGroup - minGroup + 1),
+                Math.max(0, populationCap - current));
         for (int i = 0; i < amount; i++) {
             BlockPos spawnPos = findSpawnPosition(level, marker.blockPosition(), level.random);
             if (spawnPos == null) break;
@@ -112,7 +128,6 @@ public final class WorldNpcSystem {
                 if (pillager != null) {
                     pillager.setPatrolTarget(marker.blockPosition());
                     pillager.setPatrolLeader(i == 0);
-                    pillager.findPatrolTarget();
                 }
             } else {
                 EntityType.VINDICATOR.spawn(level, spawnPos, EntitySpawnReason.EVENT);
@@ -120,10 +135,53 @@ public final class WorldNpcSystem {
         }
     }
 
+    private static void tickFactionWar(ServerLevel level) {
+        Set<java.util.UUID> seenBandits = new HashSet<>();
+        Set<java.util.UUID> seenMilitary = new HashSet<>();
+        java.util.List<Pillager> bandits = new java.util.ArrayList<>();
+        java.util.List<Vindicator> military = new java.util.ArrayList<>();
+
+        for (ServerPlayer player : level.players()) {
+            AABB activeArea = new AABB(player.blockPosition()).inflate(PLAYER_SCAN_RADIUS);
+            for (Pillager pillager : level.getEntitiesOfClass(Pillager.class, activeArea,
+                    mob -> mob.getTags().contains(BANDIT_TAG))) {
+                if (seenBandits.add(pillager.getUUID())) bandits.add(pillager);
+            }
+            for (Vindicator vindicator : level.getEntitiesOfClass(Vindicator.class, activeArea,
+                    mob -> mob.getTags().contains(MILITARY_TAG))) {
+                if (seenMilitary.add(vindicator.getUUID())) military.add(vindicator);
+            }
+        }
+
+        double detectionRadius = SurvivalConfig.getInt("world.npc.faction_detection_radius", 24, 8, 64);
+        for (Pillager bandit : bandits) acquireFactionTarget(bandit, military, detectionRadius);
+        for (Vindicator soldier : military) acquireFactionTarget(soldier, bandits, detectionRadius);
+    }
+
+    private static void acquireFactionTarget(Mob mob, java.util.List<? extends Mob> enemies,
+                                               double detectionRadius) {
+        LivingEntity currentTarget = mob.getTarget();
+        if (currentTarget != null && currentTarget.isAlive()) return;
+
+        double maxDistance = detectionRadius * detectionRadius;
+        Mob nearest = null;
+        double nearestDistance = maxDistance;
+        for (Mob enemy : enemies) {
+            if (!enemy.isAlive() || enemy == mob || !mob.hasLineOfSight(enemy)) continue;
+            double distance = mob.distanceToSqr(enemy);
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearest = enemy;
+            }
+        }
+        if (nearest != null) mob.setTarget(nearest);
+    }
+
     private static BlockPos findSpawnPosition(ServerLevel level, BlockPos center, RandomSource random) {
         for (int attempt = 0; attempt < 12; attempt++) {
-            int x = center.getX() + random.nextInt(17) - 8;
-            int z = center.getZ() + random.nextInt(17) - 8;
+            int spawnRange = SurvivalConfig.getInt("world.npc.spawn_radius", 8, 2, 24);
+            int x = center.getX() + random.nextInt(spawnRange * 2 + 1) - spawnRange;
+            int z = center.getZ() + random.nextInt(spawnRange * 2 + 1) - spawnRange;
             int startY = center.getY() + 8;
             int minY = center.getY() - 8;
             for (int y = startY; y >= minY; y--) {
