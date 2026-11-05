@@ -30,7 +30,26 @@ Place invisible spawn markers with these commands (the marker is fixed in place 
 /summon minecraft:armor_stand ~ ~ ~ {Tags:["rs_spawn_military"],Invisible:1b,Marker:1b,NoGravity:1b,Invulnerable:1b}
 ```
 
-When a player comes within 96 blocks, each marker can dispatch a group every five minutes. Groups spawn on nearby solid ground, within an 8-block radius, and are capped at six matching NPCs within 64 blocks of the marker. Bandit groups use the vanilla pillager patrol movement; military groups use vindicator combat AI. Markers only operate in loaded areas and do not force-load chunks.
+When a player comes within 96 blocks, each marker can dispatch a group every five minutes. Groups spawn on nearby solid ground, within an 8-block radius, and are capped at six matching NPCs within 64 blocks of the marker. Markers only operate in loaded areas and do not force-load chunks.
+
+**Waypoint patrols:** place up to four invisible armor stands for each faction and tag them in travel order. Spawned units follow those waypoints in a loop when not fighting. Example for a four-point bandit route:
+
+```mcfunction
+/summon minecraft:armor_stand ~ ~ ~ {Tags:["rs_patrol_bandits_0"],Invisible:1b,Marker:1b,NoGravity:1b,Invulnerable:1b}
+/summon minecraft:armor_stand ~10 ~ ~ {Tags:["rs_patrol_bandits_1"],Invisible:1b,Marker:1b,NoGravity:1b,Invulnerable:1b}
+/summon minecraft:armor_stand ~10 ~ ~10 {Tags:["rs_patrol_bandits_2"],Invisible:1b,Marker:1b,NoGravity:1b,Invulnerable:1b}
+/summon minecraft:armor_stand ~ ~ ~10 {Tags:["rs_patrol_bandits_3"],Invisible:1b,Marker:1b,NoGravity:1b,Invulnerable:1b}
+```
+
+For military routes, replace `rs_patrol_bandits_` with `rs_patrol_military_`. Routes support indices 0–3; mobs move to the next existing index and loop back to the beginning. Combat interrupts waypoint movement until the unit has no living target.
+
+**Military checkpoints:** summon a military checkpoint marker to dispatch guards and warn players who approach:
+
+```mcfunction
+/summon minecraft:armor_stand ~ ~ ~ {Tags:["rs_checkpoint_military"],Invisible:1b,Marker:1b,NoGravity:1b,Invulnerable:1b}
+```
+
+A checkpoint dispatches military groups using the same spawn interval and population cap. Approaching survival players receive a warning, and nearby guards engage them within the configured guard radius.
 
 Story characters can be created with a vanilla summon command, for example:
 
@@ -63,8 +82,11 @@ The file `config/realistic-survival.properties` is created on first launch. Rest
 - `world.npc.spawn_radius=8` — maximum horizontal spawn distance from a marker (2–24 blocks).
 - `world.npc.population_radius=64` and `world.npc.population_cap=6` — local faction population limit.
 - `world.npc.group_min=2` and `world.npc.group_max=3` — dispatched group size (1–8).
+- `world.npc.patrols_enabled=true` and `world.npc.patrol_speed=0.85` — waypoint patrols and their movement speed.
+- `world.npc.checkpoints_enabled=true` — enable military checkpoint warnings and guards.
+- `world.npc.checkpoint_alert_radius=12` and `world.npc.checkpoint_guard_radius=20` — checkpoint warning and guard ranges.
 
 ### NPC roadmap
 
-- Bandit and military spawn markers, timed group dispatches, configurable local population caps and faction hostility are implemented. Nearby bandits and military acquire each other as targets when they have line of sight; each faction keeps existing targets such as players. Expanded waypoint patrol routes, custom models and faction diplomacy are future work.
+- Bandit and military spawn markers, timed group dispatches, configurable local population caps, faction hostility, four-point waypoint patrols and military checkpoint behavior are implemented. Custom models, faction diplomacy and deeper checkpoint/territory control are future work.
 - Story characters currently have a small persistent dialogue prototype; branching quests, unique characters and story chapters are future work.
