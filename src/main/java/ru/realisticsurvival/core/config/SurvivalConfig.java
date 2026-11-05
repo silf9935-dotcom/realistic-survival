@@ -53,6 +53,15 @@ public final class SurvivalConfig {
         VALUES.setProperty("world.fire.player_damage", "hardcore");
         VALUES.setProperty("world.fire.npc", "advanced");
         VALUES.setProperty("world.fire.nature_recovery", "gradual");
+        VALUES.setProperty("world.npc.faction_wars", "true");
+        VALUES.setProperty("world.npc.faction_war_scan_ticks", "40");
+        VALUES.setProperty("world.npc.faction_detection_radius", "24");
+        VALUES.setProperty("world.npc.spawn_interval_seconds", "300");
+        VALUES.setProperty("world.npc.spawn_radius", "8");
+        VALUES.setProperty("world.npc.population_radius", "64");
+        VALUES.setProperty("world.npc.population_cap", "6");
+        VALUES.setProperty("world.npc.group_min", "2");
+        VALUES.setProperty("world.npc.group_max", "3");
     }
 
     public static boolean getBoolean(String key, boolean fallback) {
