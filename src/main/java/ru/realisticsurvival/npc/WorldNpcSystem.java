@@ -82,9 +82,10 @@ public final class WorldNpcSystem {
 
             long gameTime = level.getGameTime();
             int warInterval = SurvivalConfig.getInt("world.npc.faction_war_scan_ticks", 40, 20, 200);
-            if (SurvivalConfig.getBoolean("world.npc.faction_wars", true)
-                    && gameTime % warInterval == 0L) {
-                tickFactionWar(level);
+            if (gameTime % warInterval == 0L) {
+                if (SurvivalConfig.getBoolean("world.npc.faction_wars", true)) tickFactionWar(level);
+                if (SurvivalConfig.getBoolean("world.npc.patrols_enabled", true)) tickPatrols(level);
+                if (SurvivalConfig.getBoolean("world.npc.checkpoints_enabled", true)) tickCheckpoints(level);
             }
 
             int spawnIntervalSeconds = SurvivalConfig.getInt("world.npc.spawn_interval_seconds", 300, 60, 3600);
@@ -212,12 +213,10 @@ public final class WorldNpcSystem {
     }
 
     private static void tickCheckpoints(ServerLevel level) {
-        Set<java.util.UUID> processed = new HashSet<>();
         for (ServerPlayer player : level.players()) {
             AABB scan = new AABB(player.blockPosition()).inflate(PLAYER_SCAN_RADIUS);
             for (ArmorStand checkpoint : level.getEntitiesOfClass(ArmorStand.class, scan,
                     stand -> stand.getTags().contains(MILITARY_CHECKPOINT_TAG))) {
-                if (!processed.add(checkpoint.getUUID())) continue;
                 String alertTag = CHECKPOINT_ALERT_PREFIX + checkpoint.getUUID();
                 double distance = player.distanceToSqr(checkpoint);
                 int alertRadius = SurvivalConfig.getInt("world.npc.checkpoint_alert_radius", 12, 4, 32);
