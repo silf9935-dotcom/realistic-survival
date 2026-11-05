@@ -208,7 +208,7 @@ public final class SurvivalRuntime {
             }
             if (ticks % 5 == 0 && SurvivalConfig.getBoolean("hud.enabled", true)) {
                 int carriedItems = 0;
-                for (var stack : player.getInventory().items) carriedItems += stack.getCount();
+                for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) carriedItems += player.getInventory().getItem(slot).getCount();
                 int carryWeightTenths = Math.min(300, carriedItems);
                 int health = Math.round(100.0F * player.getHealth() / Math.max(1.0F, player.getMaxHealth()));
                 ServerPlayNetworking.send(player, new SurvivalHudPayload(
