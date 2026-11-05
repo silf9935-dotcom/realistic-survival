@@ -4,10 +4,11 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.realisticsurvival.core.config.SurvivalConfig;
-import ru.realisticsurvival.player.SurvivalRuntime;
-import ru.realisticsurvival.player.InjurySystem;
 import ru.realisticsurvival.item.MedicalItems;
+import ru.realisticsurvival.npc.TerritorySystem;
 import ru.realisticsurvival.npc.WorldNpcSystem;
+import ru.realisticsurvival.player.InjurySystem;
+import ru.realisticsurvival.player.SurvivalRuntime;
 
 public final class RealisticSurvival implements ModInitializer {
     public static final String MOD_ID = "realistic_survival";
@@ -20,6 +21,7 @@ public final class RealisticSurvival implements ModInitializer {
         SurvivalRuntime.register();
         InjurySystem.register();
         WorldNpcSystem.register();
-        LOGGER.info("Realistic Survival survival, injury and world NPC systems initialized.");
+        TerritorySystem.register();
+        LOGGER.info("Realistic Survival 1.0.0 systems initialized.");
     }
 }
