@@ -183,10 +183,15 @@ public final class WorldNpcSystem {
         int step = readPatrolStep(mob);
         ArmorStand destination = null;
         for (ArmorStand stand : route) if (stand.getTags().contains(prefix + step)) { destination = stand; break; }
-        if (destination == null) { destination = route.get(0); step = patrolWaypointIndex(destination, prefix); setPatrolStep(mob, step); }
+        if (destination == null) {
+            destination = route.get(0);
+            setPatrolStep(mob, patrolWaypointIndex(destination, prefix));
+        }
         if (mob.distanceToSqr(destination) <= 9.0) {
-            int next = (step + 1) % PATROL_WAYPOINT_COUNT;
-            for (ArmorStand stand : route) if (stand.getTags().contains(prefix + next)) { destination = stand; setPatrolStep(mob, next); break; }
+            int routePosition = route.indexOf(destination);
+            ArmorStand nextWaypoint = route.get((routePosition + 1) % route.size());
+            destination = nextWaypoint;
+            setPatrolStep(mob, patrolWaypointIndex(nextWaypoint, prefix));
         }
         if (mob.getTarget() == null || !mob.getTarget().isAlive()) {
             double speed = SurvivalConfig.getDouble("world.npc.patrol_speed", 0.85, 0.3, 1.5);
