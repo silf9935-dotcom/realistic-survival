@@ -62,6 +62,11 @@ public final class SurvivalConfig {
         VALUES.setProperty("world.npc.population_cap", "6");
         VALUES.setProperty("world.npc.group_min", "2");
         VALUES.setProperty("world.npc.group_max", "3");
+        VALUES.setProperty("world.npc.patrols_enabled", "true");
+        VALUES.setProperty("world.npc.patrol_speed", "0.85");
+        VALUES.setProperty("world.npc.checkpoints_enabled", "true");
+        VALUES.setProperty("world.npc.checkpoint_alert_radius", "12");
+        VALUES.setProperty("world.npc.checkpoint_guard_radius", "20");
     }
 
     public static boolean getBoolean(String key, boolean fallback) {
