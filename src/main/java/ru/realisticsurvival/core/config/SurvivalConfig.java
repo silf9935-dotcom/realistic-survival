@@ -68,6 +68,16 @@ public final class SurvivalConfig {
         VALUES.setProperty("world.npc.checkpoint_alert_radius", "12");
         VALUES.setProperty("world.npc.checkpoint_guard_radius", "20");
         VALUES.setProperty("world.npc.territories_enabled", "true");
+        VALUES.setProperty("world.npc.auto_camps_enabled", "true");
+        VALUES.setProperty("world.npc.auto_camp_interval_seconds", "60");
+        VALUES.setProperty("world.npc.auto_camp_chance", "25");
+        VALUES.setProperty("world.npc.auto_camp_spacing", "160");
+        VALUES.setProperty("world.nature.enabled", "true");
+        VALUES.setProperty("world.nature.stump_chance", "20");
+        VALUES.setProperty("world.nature.boulder_chance", "14");
+        VALUES.setProperty("world.nature.dead_tree_chance", "8");
+        VALUES.setProperty("world.sites.enabled", "true");
+        VALUES.setProperty("world.sites.chance", "2");
         VALUES.setProperty("world.npc.territory_capture_radius", "12");
         VALUES.setProperty("world.npc.territory_capture_seconds", "30");
         VALUES.setProperty("world.npc.territory_event_interval_seconds", "600");

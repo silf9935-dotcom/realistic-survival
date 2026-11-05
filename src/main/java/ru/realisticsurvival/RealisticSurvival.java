@@ -5,7 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.realisticsurvival.core.config.SurvivalConfig;
 import ru.realisticsurvival.item.MedicalItems;
+import ru.realisticsurvival.npc.CampGenerator;
 import ru.realisticsurvival.npc.TerritorySystem;
+import ru.realisticsurvival.world.AbandonedSites;
+import ru.realisticsurvival.world.NatureGenerator;
 import ru.realisticsurvival.npc.WorldNpcSystem;
 import ru.realisticsurvival.player.InjurySystem;
 import ru.realisticsurvival.player.SurvivalRuntime;
@@ -22,6 +25,9 @@ public final class RealisticSurvival implements ModInitializer {
         InjurySystem.register();
         WorldNpcSystem.register();
         TerritorySystem.register();
+        CampGenerator.register();
+        NatureGenerator.register();
+        AbandonedSites.register();
         LOGGER.info("Realistic Survival 1.0.0 systems initialized.");
     }
 }
