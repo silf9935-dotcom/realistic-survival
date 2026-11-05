@@ -7,6 +7,9 @@ import java.util.UUID;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import ru.realisticsurvival.network.SurvivalHudPayload;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.network.chat.Component;
@@ -38,6 +41,7 @@ public final class SurvivalRuntime {
             State state = STATES.remove(player.getUUID());
             if (state != null) state.write(player);
         });
+        PayloadTypeRegistry.playS2C().register(SurvivalHudPayload.TYPE, SurvivalHudPayload.CODEC);
         ServerTickEvents.END_SERVER_TICK.register(SurvivalRuntime::tick);
         UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
             if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer
@@ -201,19 +205,17 @@ public final class SurvivalRuntime {
 
             if (ticks % 20 == 0) {
                 state.write(player);
-                if (SurvivalConfig.getBoolean("hud.enabled", true)) {
-                    String hud = "§bЖажда §f" + state.thirst + "%  " +
-                            "§eВыносливость §f" + state.stamina + "%  " +
-                            "§6Усталость §f" + state.fatigue + "%";
-                    int injurySeverity = InjurySystem.getSeverity(player);
-                    if (injurySeverity > 0) hud += "  §cРана §f" + injurySeverity + "/3";
-                    if (!SurvivalConfig.getBoolean("hud.compact", false)) {
-                        hud = "§cГолод §f" + player.getFoodData().getFoodLevel() * 5 + "%  " + hud +
-                                "  §dРассудок §f" + state.sanity + "%  " +
-                                "§eТемпература §f" + String.format(java.util.Locale.ROOT, "%.1f", state.bodyTemperature / 10.0) + "°C";
-                    }
-                    player.displayClientMessage(Component.literal(hud), true);
-                }
+            }
+            if (ticks % 5 == 0 && SurvivalConfig.getBoolean("hud.enabled", true)) {
+                int carriedItems = 0;
+                for (var stack : player.getInventory().items) carriedItems += stack.getCount();
+                int carryWeightTenths = Math.min(300, carriedItems);
+                int health = Math.round(100.0F * player.getHealth() / Math.max(1.0F, player.getMaxHealth()));
+                ServerPlayNetworking.send(player, new SurvivalHudPayload(
+                        Math.max(0, Math.min(100, health)),
+                        player.getFoodData().getFoodLevel() * 5,
+                        state.thirst, state.stamina, state.sanity, state.bodyTemperature,
+                        InjurySystem.getBodyMask(player), carryWeightTenths));
             }
         }
     }
