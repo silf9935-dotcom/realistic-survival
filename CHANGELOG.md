@@ -1,3 +1,13 @@
+## 1.0.0 release candidate
+
+- Consolidate the survival needs, medical treatment, faction NPCs, story characters, spawn markers, faction wars, patrol routes and military checkpoints into one release version.
+- Add persistent faction territories with neutral, bandit and military starting ownership.
+- Allow players to capture unguarded territory and allow bandit or military units to claim territory for their faction.
+- Pause capture while both factions contest a territory; announce successful captures to nearby players.
+- Add scheduled bandit-versus-military skirmish events at active territory markers.
+- Add configuration for territory capture radius, capture duration, event interval and system enablement.
+- Update setup commands and configuration documentation for the consolidated 1.0.0 release.
+
 ## 0.3.0-beta.1
 
 - Consolidate the alpha survival loop into the first beta candidate for Minecraft Java 1.21.11 / Fabric.
@@ -61,7 +71,6 @@
 ## 0.2.0-alpha.7
 
 - Refine survival status feedback and persist physiological state consistently during active play.
-
 
 ## 0.2.0-alpha.6
 
