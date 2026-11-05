@@ -78,6 +78,13 @@ public final class SurvivalRuntime {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             State state = STATES.computeIfAbsent(player.getUUID(), ignored -> State.read(player));
 
+            // A jump is detected once on the grounded -> airborne transition.
+            boolean grounded = player.onGround();
+            if (state.wasOnGround && !grounded && player.getDeltaMovement().y > 0.0) {
+                drainStamina(player, state, 12);
+            }
+            state.wasOnGround = grounded;
+
             if (ticks % 600 == 0) state.thirst = Math.max(0, state.thirst - 1);
 
             // Quiet rest: crouching while nearly motionless gradually reduces fatigue.
@@ -98,7 +105,7 @@ public final class SurvivalRuntime {
                 if (ticks % 600 == 0) state.sanity = Math.min(100, state.sanity + 1);
             } else {
                 if (ticks % 1200 == 0) state.fatigue = Math.min(100, state.fatigue + 1);
-                if (player.isSprinting() && ticks % 300 == 0) {
+                if (player.isSprinting() && ticks % 200 == 0) {
                     state.fatigue = Math.min(100, state.fatigue + 1);
                     state.thirst = Math.max(0, state.thirst - 1);
                 }
@@ -163,12 +170,13 @@ public final class SurvivalRuntime {
                 int sprintInterval = exhaustedByHunger ? 3 : 5;
                 if (state.thirst < 30) sprintInterval = Math.max(2, sprintInterval - 1);
                 if (state.bodyTemperature <= 330) sprintInterval = Math.max(2, sprintInterval - 1);
-                if (ticks % sprintInterval == 0) state.stamina = Math.max(0, state.stamina - 1);
+                if (ticks % sprintInterval == 0) drainStamina(player, state, 1);
             } else {
-                int recoveryInterval = exhaustedByHunger ? 6 : 3;
-                if (state.thirst < 30) recoveryInterval *= 2;
-                if (state.bodyTemperature <= 340) recoveryInterval *= 2;
-                if (state.bodyTemperature >= 400) recoveryInterval *= 2;
+                // Recovery is intentionally slower: roughly 2 stamina per second at rest.
+                int recoveryInterval = exhaustedByHunger ? 18 : 12;
+                if (state.thirst < 30) recoveryInterval = Math.min(36, recoveryInterval * 2);
+                if (state.bodyTemperature <= 340 || state.bodyTemperature >= 400)
+                    recoveryInterval = Math.min(36, recoveryInterval * 2);
                 if (ticks % recoveryInterval == 0) state.stamina = Math.min(100, state.stamina + 1);
             }
 
@@ -214,9 +222,20 @@ public final class SurvivalRuntime {
                 ServerPlayNetworking.send(player, new SurvivalHudPayload(
                         Math.max(0, Math.min(100, health)),
                         player.getFoodData().getFoodLevel() * 5,
-                        state.thirst, state.stamina, state.sanity, state.bodyTemperature,
+                        state.thirst, state.stamina, state.fatigue, state.sanity, state.bodyTemperature,
                         InjurySystem.getBodyMask(player), carryWeightTenths));
             }
+        }
+    }
+
+    private static void drainStamina(ServerPlayer player, State state, int amount) {
+        if (amount <= 0 || state.stamina <= 0) return;
+        int previous = state.stamina;
+        state.stamina = Math.max(0, state.stamina - amount);
+        if (previous > 0 && state.stamina == 0) {
+            player.setSprinting(false);
+            // Slowness III for five seconds when the stamina pool is fully depleted.
+            player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 2, false, true, true));
         }
     }
 
@@ -228,6 +247,7 @@ public final class SurvivalRuntime {
         int bodyTemperature = 370;
         long lastDrinkTick = -1000L;
         int restTicks = 0;
+        boolean wasOnGround = true;
 
         static State read(ServerPlayer player) {
             State state = new State();
