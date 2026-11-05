@@ -22,8 +22,8 @@ public final class AbandonedSites {
     private AbandonedSites() {}
 
     public static void register() {
-        ServerChunkEvents.CHUNK_LOAD.register((level,chunk,generated)->{
-            if(!generated || !level.dimension().equals(Level.OVERWORLD)
+        ServerChunkEvents.CHUNK_GENERATE.register((level,chunk)->{
+            if(!level.dimension().equals(Level.OVERWORLD)
                     || !SurvivalConfig.getBoolean("world.sites.enabled",true)) return;
             generate(level,chunk);
         });
