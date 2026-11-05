@@ -10,7 +10,7 @@ import net.minecraft.resources.Identifier;
 import ru.realisticsurvival.network.SurvivalHudPayload;
 
 public final class RealisticSurvivalClient implements ClientModInitializer {
-    private static SurvivalHudPayload latest = new SurvivalHudPayload(100, 100, 100, 100, 100, 370, 0, 0);
+    private static SurvivalHudPayload latest = new SurvivalHudPayload(100, 100, 100, 100, 0, 100, 370, 0, 0);
 
     @Override
     public void onInitializeClient() {
@@ -31,7 +31,7 @@ public final class RealisticSurvivalClient implements ClientModInitializer {
         SurvivalHudPayload s = latest;
 
         int left = 10;
-        int bottom = h - 12;
+        int bottom = h - 40;
         drawMeter(g, mc, left, bottom - 60, 174, "♥", s.health(), 100, 0xFFE51D2A);
         drawMeter(g, mc, left, bottom - 30, 174, "🍖", s.hunger(), 100, 0xFFB97945);
         drawMeter(g, mc, left, bottom, 174, "◆", s.thirst(), 100, 0xFF354BD2);
@@ -42,16 +42,17 @@ public final class RealisticSurvivalClient implements ClientModInitializer {
         g.drawString(mc.font, String.format(java.util.Locale.ROOT, "%.1f°C", s.temperatureTenths() / 10.0),
                 left + 192, tempY - 4, 0xFFFFFFFF, true);
 
-        // Keep the vanilla nine-slot hotbar untouched; stamina is a compact readout above it.
+        // Fatigue is visible as its own meter; stamina remains a compact readout above the hotbar.
+        drawMeter(g, mc, w / 2 - 87, h - 88, 174, "Уст.", s.fatigue(), 100, 0xFFB18B55);
         String stamina = "⚡ " + s.stamina() + "/100";
         int staminaX = w / 2 - mc.font.width(stamina) / 2;
         int staminaY = h - 58;
         g.fill(staminaX - 5, staminaY - 3, staminaX + mc.font.width(stamina) + 5, staminaY + 13, 0x99090912);
         g.drawString(mc.font, stamina, staminaX, staminaY, 0xFF4D9CFF, true);
 
-        String weight = "▣ " + String.format(java.util.Locale.ROOT, "%.1f", s.carryWeightTenths() / 10.0) + "/30 кг";
+        String weight = "🎒 " + String.format(java.util.Locale.ROOT, "%.1f", s.carryWeightTenths() / 10.0) + "/30 кг";
         g.drawString(mc.font, weight, w - mc.font.width(weight) - 12, h - 42, 0xFFFFD29A, true);
-        String sanity = "Мозг " + s.sanity() + "%";
+        String sanity = "🧠 " + s.sanity() + "%";
         g.drawString(mc.font, sanity, w - mc.font.width(sanity) - 12, h - 25, 0xFFFF91C8, true);
 
         // Anonymous body map: red points show affected areas, never injury names.
