@@ -36,6 +36,13 @@ public final class WorldNpcSystem {
     public static final String STORY_TAG = "rs_story_npc";
     public static final String BANDIT_SPAWN_TAG = "rs_spawn_bandits";
     public static final String MILITARY_SPAWN_TAG = "rs_spawn_military";
+    public static final String MILITARY_CHECKPOINT_TAG = "rs_checkpoint_military";
+    private static final String BANDIT_PATROL_PREFIX = "rs_patrol_bandits_";
+    private static final String MILITARY_PATROL_PREFIX = "rs_patrol_military_";
+    private static final String PATROL_ACTIVE_TAG = "rs_patrol_active";
+    private static final String PATROL_STEP_PREFIX = "rs_patrol_step_";
+    private static final String CHECKPOINT_ALERT_PREFIX = "rs_checkpoint_alert_";
+    private static final int PATROL_WAYPOINT_COUNT = 4;
     private static final String BANDIT_TAG = "rs_npc_bandit";
     private static final String MILITARY_TAG = "rs_npc_military";
     private static final String STORY_STAGE_PREFIX = "rs_story_stage_";
@@ -88,7 +95,8 @@ public final class WorldNpcSystem {
                 for (ArmorStand marker : level.getEntitiesOfClass(ArmorStand.class,
                         new AABB(player.blockPosition()).inflate(PLAYER_SCAN_RADIUS),
                         stand -> stand.getTags().contains(BANDIT_SPAWN_TAG)
-                                || stand.getTags().contains(MILITARY_SPAWN_TAG))) {
+                                || stand.getTags().contains(MILITARY_SPAWN_TAG)
+                                || stand.getTags().contains(MILITARY_CHECKPOINT_TAG))) {
                     if (!processedMarkers.add(marker.getUUID())) continue;
                     boolean bandits = marker.getTags().contains(BANDIT_SPAWN_TAG);
                     spawnMarkerGroup(level, marker, bandits);
@@ -128,13 +136,106 @@ public final class WorldNpcSystem {
                 if (pillager != null) {
                     pillager.setPatrolTarget(marker.blockPosition());
                     pillager.setPatrolLeader(i == 0);
+                    pillager.addTag(PATROL_ACTIVE_TAG);
+                    pillager.addTag(PATROL_STEP_PREFIX + "0");
                 }
             } else {
-                EntityType.VINDICATOR.spawn(level, spawnPos, EntitySpawnReason.EVENT);
+                Vindicator soldier = EntityType.VINDICATOR.spawn(level, spawnPos, EntitySpawnReason.EVENT);
+                if (soldier != null) {
+                    soldier.addTag(PATROL_ACTIVE_TAG);
+                    soldier.addTag(PATROL_STEP_PREFIX + "0");
+                }
             }
         }
     }
 
+    private static void tickPatrols(ServerLevel level) {
+        Set<java.util.UUID> seen = new HashSet<>();
+        for (ServerPlayer player : level.players()) {
+            AABB area = new AABB(player.blockPosition()).inflate(PLAYER_SCAN_RADIUS);
+            java.util.List<ArmorStand> waypoints = level.getEntitiesOfClass(ArmorStand.class, area,
+                    stand -> hasPatrolWaypoint(stand, true) || hasPatrolWaypoint(stand, false));
+            for (Pillager mob : level.getEntitiesOfClass(Pillager.class, area,
+                    entity -> entity.getTags().contains(BANDIT_TAG) && entity.getTags().contains(PATROL_ACTIVE_TAG))) {
+                if (seen.add(mob.getUUID())) tickPatrolMob(mob, waypoints, true);
+            }
+            for (Vindicator mob : level.getEntitiesOfClass(Vindicator.class, area,
+                    entity -> entity.getTags().contains(MILITARY_TAG) && entity.getTags().contains(PATROL_ACTIVE_TAG))) {
+                if (seen.add(mob.getUUID())) tickPatrolMob(mob, waypoints, false);
+            }
+        }
+    }
+
+    private static boolean hasPatrolWaypoint(ArmorStand stand, boolean bandits) {
+        String prefix = bandits ? BANDIT_PATROL_PREFIX : MILITARY_PATROL_PREFIX;
+        for (int i = 0; i < PATROL_WAYPOINT_COUNT; i++) if (stand.getTags().contains(prefix + i)) return true;
+        return false;
+    }
+
+    private static void tickPatrolMob(Mob mob, java.util.List<ArmorStand> waypoints, boolean bandits) {
+        String prefix = bandits ? BANDIT_PATROL_PREFIX : MILITARY_PATROL_PREFIX;
+        java.util.List<ArmorStand> route = new java.util.ArrayList<>();
+        for (int i = 0; i < PATROL_WAYPOINT_COUNT; i++) {
+            for (ArmorStand stand : waypoints) if (stand.getTags().contains(prefix + i)) route.add(stand);
+        }
+        if (route.isEmpty()) return;
+        int step = readPatrolStep(mob);
+        ArmorStand destination = null;
+        for (ArmorStand stand : route) if (stand.getTags().contains(prefix + step)) { destination = stand; break; }
+        if (destination == null) { destination = route.get(0); step = patrolWaypointIndex(destination, prefix); setPatrolStep(mob, step); }
+        if (mob.distanceToSqr(destination) <= 9.0) {
+            int next = (step + 1) % PATROL_WAYPOINT_COUNT;
+            for (ArmorStand stand : route) if (stand.getTags().contains(prefix + next)) { destination = stand; setPatrolStep(mob, next); break; }
+        }
+        if (mob.getTarget() == null || !mob.getTarget().isAlive()) {
+            double speed = SurvivalConfig.getDouble("world.npc.patrol_speed", 0.85, 0.3, 1.5);
+            mob.getNavigation().moveTo(destination.getX(), destination.getY(), destination.getZ(), speed);
+        }
+    }
+
+    private static int patrolWaypointIndex(ArmorStand stand, String prefix) {
+        for (int i = 0; i < PATROL_WAYPOINT_COUNT; i++) if (stand.getTags().contains(prefix + i)) return i;
+        return 0;
+    }
+
+    private static int readPatrolStep(Mob mob) {
+        for (String tag : mob.getTags()) if (tag.startsWith(PATROL_STEP_PREFIX)) {
+            try { return Math.max(0, Math.min(PATROL_WAYPOINT_COUNT - 1, Integer.parseInt(tag.substring(PATROL_STEP_PREFIX.length())))); }
+            catch (NumberFormatException ignored) { return 0; }
+        }
+        return 0;
+    }
+
+    private static void setPatrolStep(Mob mob, int step) {
+        mob.getTags().stream().filter(tag -> tag.startsWith(PATROL_STEP_PREFIX)).toList().forEach(mob::removeTag);
+        mob.addTag(PATROL_STEP_PREFIX + step);
+    }
+
+    private static void tickCheckpoints(ServerLevel level) {
+        Set<java.util.UUID> processed = new HashSet<>();
+        for (ServerPlayer player : level.players()) {
+            AABB scan = new AABB(player.blockPosition()).inflate(PLAYER_SCAN_RADIUS);
+            for (ArmorStand checkpoint : level.getEntitiesOfClass(ArmorStand.class, scan,
+                    stand -> stand.getTags().contains(MILITARY_CHECKPOINT_TAG))) {
+                if (!processed.add(checkpoint.getUUID())) continue;
+                String alertTag = CHECKPOINT_ALERT_PREFIX + checkpoint.getUUID();
+                double distance = player.distanceToSqr(checkpoint);
+                int alertRadius = SurvivalConfig.getInt("world.npc.checkpoint_alert_radius", 12, 4, 32);
+                if (distance <= (double) alertRadius * alertRadius && !player.getTags().contains(alertTag)
+                        && !player.isCreative() && !player.isSpectator()) {
+                    player.addTag(alertTag);
+                    player.displayClientMessage(Component.literal("Военный блокпост впереди. Не приближайся без подготовки."), true);
+                } else if (distance > (double) (alertRadius + 4) * (alertRadius + 4)) player.removeTag(alertTag);
+                int guardRadius = SurvivalConfig.getInt("world.npc.checkpoint_guard_radius", 20, 8, 40);
+                if (distance <= (double) guardRadius * guardRadius && !player.isCreative() && !player.isSpectator()) {
+                    AABB guardArea = new AABB(checkpoint.blockPosition()).inflate(guardRadius);
+                    for (Vindicator guard : level.getEntitiesOfClass(Vindicator.class, guardArea,
+                            mob -> mob.getTags().contains(MILITARY_TAG) && (mob.getTarget() == null || !mob.getTarget().isAlive())))
+                        guard.setTarget(player);
+                }
+            }
+        }
+    }
     private static void tickFactionWar(ServerLevel level) {
         Set<java.util.UUID> seenBandits = new HashSet<>();
         Set<java.util.UUID> seenMilitary = new HashSet<>();
