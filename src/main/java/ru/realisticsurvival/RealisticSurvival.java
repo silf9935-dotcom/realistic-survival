@@ -4,6 +4,10 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.realisticsurvival.core.config.SurvivalConfig;
+import ru.realisticsurvival.item.MedicalItems;
+import ru.realisticsurvival.npc.TerritorySystem;
+import ru.realisticsurvival.npc.WorldNpcSystem;
+import ru.realisticsurvival.player.InjurySystem;
 import ru.realisticsurvival.player.SurvivalRuntime;
 
 public final class RealisticSurvival implements ModInitializer {
@@ -13,7 +17,11 @@ public final class RealisticSurvival implements ModInitializer {
     @Override
     public void onInitialize() {
         SurvivalConfig.load();
+        MedicalItems.initialize();
         SurvivalRuntime.register();
-        LOGGER.info("Realistic Survival survival systems initialized.");
+        InjurySystem.register();
+        WorldNpcSystem.register();
+        TerritorySystem.register();
+        LOGGER.info("Realistic Survival 1.0.0 systems initialized.");
     }
 }

@@ -4,11 +4,18 @@
   "version": "${version}",
   "name": "Realistic Survival",
   "description": "A deep survival overhaul for Minecraft with realistic needs, injuries, ecology and a persistent world.",
-  "authors": ["Realistic Survival Team"],
+  "authors": [
+    "Realistic Survival Team"
+  ],
   "license": "All-Rights-Reserved",
   "environment": "*",
   "entrypoints": {
-    "main": ["ru.realisticsurvival.RealisticSurvival"]
+    "main": [
+      "ru.realisticsurvival.RealisticSurvival"
+    ],
+    "client": [
+      "ru.realisticsurvival.client.RealisticSurvivalClient"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.18.0",
