@@ -6,7 +6,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 
-public record SurvivalHudPayload(int health, int hunger, int thirst, int stamina, int sanity,
+public record SurvivalHudPayload(int health, int hunger, int thirst, int stamina, int fatigue, int sanity,
                                  int temperatureTenths, int injuryMask, int carryWeightTenths)
         implements CustomPacketPayload {
     public static final Type<SurvivalHudPayload> TYPE =
@@ -16,6 +16,7 @@ public record SurvivalHudPayload(int health, int hunger, int thirst, int stamina
             ByteBufCodecs.VAR_INT, SurvivalHudPayload::hunger,
             ByteBufCodecs.VAR_INT, SurvivalHudPayload::thirst,
             ByteBufCodecs.VAR_INT, SurvivalHudPayload::stamina,
+            ByteBufCodecs.VAR_INT, SurvivalHudPayload::fatigue,
             ByteBufCodecs.VAR_INT, SurvivalHudPayload::sanity,
             ByteBufCodecs.VAR_INT, SurvivalHudPayload::temperatureTenths,
             ByteBufCodecs.VAR_INT, SurvivalHudPayload::injuryMask,
