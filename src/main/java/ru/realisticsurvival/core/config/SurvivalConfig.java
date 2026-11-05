@@ -67,6 +67,10 @@ public final class SurvivalConfig {
         VALUES.setProperty("world.npc.checkpoints_enabled", "true");
         VALUES.setProperty("world.npc.checkpoint_alert_radius", "12");
         VALUES.setProperty("world.npc.checkpoint_guard_radius", "20");
+        VALUES.setProperty("world.npc.territories_enabled", "true");
+        VALUES.setProperty("world.npc.territory_capture_radius", "12");
+        VALUES.setProperty("world.npc.territory_capture_seconds", "30");
+        VALUES.setProperty("world.npc.territory_event_interval_seconds", "600");
     }
 
     public static boolean getBoolean(String key, boolean fallback) {
