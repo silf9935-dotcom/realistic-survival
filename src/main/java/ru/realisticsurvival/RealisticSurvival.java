@@ -7,8 +7,6 @@ import ru.realisticsurvival.core.config.SurvivalConfig;
 import ru.realisticsurvival.item.MedicalItems;
 import ru.realisticsurvival.npc.CampGenerator;
 import ru.realisticsurvival.npc.TerritorySystem;
-import ru.realisticsurvival.world.AbandonedSites;
-import ru.realisticsurvival.world.NatureGenerator;
 import ru.realisticsurvival.npc.WorldNpcSystem;
 import ru.realisticsurvival.player.InjurySystem;
 import ru.realisticsurvival.player.SurvivalRuntime;
@@ -26,8 +24,9 @@ public final class RealisticSurvival implements ModInitializer {
         WorldNpcSystem.register();
         TerritorySystem.register();
         CampGenerator.register();
-        NatureGenerator.register();
-        AbandonedSites.register();
+        // Diagnostic build: chunk decoration is temporarily disabled to isolate
+        // the new-world startup hang. Re-enable after the generation path is fixed.
+        LOGGER.warn("Realistic Survival diagnostic mode: NatureGenerator and AbandonedSites are disabled.");
         LOGGER.info("Realistic Survival 1.0.0 systems initialized.");
     }
 }
